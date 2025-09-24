@@ -268,6 +268,24 @@ const UploadStep: React.FC<{ onFileSelect: (file: RSLFile) => void }> = ({ onFil
                     onChange={handleChange} 
                     accept="image/*,video/*,audio/*,.pdf,.txt"
                 />
+                <div className="w-16 h-16 mb-4 rounded-full flex items-center justify-center" style={{ backgroundColor: '#E5E7EB' }}>
+                    <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                </div>
+
+                {isDragActive ? (
+                    <p className="text-gray-600 font-medium">Drop the file here...</p>
+                ) : (
+                    <div>
+                        <p className="text-gray-600 font-medium mb-2">
+                            <span className="text-blue-600">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-sm text-gray-500">
+                            Any image, video, audio, PDF, or text file (Max 20MB)
+                        </p>
+                    </div>
+                )}
             </div>
             {error && <p className="mt-4 text-red-500 text-sm">{error}</p>}
         </div>
