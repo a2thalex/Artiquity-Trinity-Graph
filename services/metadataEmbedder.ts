@@ -34,7 +34,7 @@ export function createRSLMetadata(options: LicenseOptions): RSLMetadata {
         subscriptionPeriod: options.subscriptionPeriod,
         provenanceInfo: options.provenanceInfo,
         dateIssued: new Date().toISOString(),
-        licenseServer: 'https:
+        licenseServer: 'https://rslplatform.com/license',
         contact: 'contact@rslplatform.com'
     };
 }
@@ -343,8 +343,8 @@ async function embedPDFMetadata(file: File, metadata: RSLMetadata): Promise<File
         
         const xmpData = `<?xml version="1.0" encoding="UTF-8"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.6.0">
-  <rdf:RDF xmlns:rdf="http:
-    <rdf:Description rdf:about="" xmlns:rsl="https:
+  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about="" xmlns:rsl="https://rslstandard.org/rsl">
       <rsl:license>${metadata.license}</rsl:license>
       <rsl:permissions>${metadata.permissions.join(',')}</rsl:permissions>
       <rsl:paymentModel>${metadata.paymentModel}</rsl:paymentModel>
@@ -381,8 +381,8 @@ async function createSidecarFile(originalFile: File, metadata: RSLMetadata): Pro
 function createRSLXMP(metadata: RSLMetadata): string {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.6.0">
-  <rdf:RDF xmlns:rdf="http:
-    <rdf:Description rdf:about="" xmlns:rsl="https:
+  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about="" xmlns:rsl="https://rslstandard.org/rsl">
       <rsl:license>${metadata.license}</rsl:license>
       <rsl:permissions>${metadata.permissions.join(',')}</rsl:permissions>
       <rsl:userTypes>${metadata.userTypes.join(',')}</rsl:userTypes>

@@ -23,10 +23,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:
-      scriptSrc: ["'self'", "https:
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
+      scriptSrc: ["'self'", "https://cdn.tailwindcss.com", "https://aistudiocdn.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https:
+      connectSrc: ["'self'", "https://api.stripe.com", "https://api.paypal.com"]
     }
   }
 }));
@@ -46,8 +46,8 @@ app.use('/api/', limiter);
 
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https:
-    : ['http:
+    ? ['https://yourdomain.com']
+    : ['http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-RSL-License-ID']
@@ -112,7 +112,7 @@ async function startServer() {
     app.listen(PORT, () => {
       logger.info(`RSL Platform server running on port ${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`Health check: http:
+      logger.info(`Health check: http://localhost:${PORT}/health`);
     });
   } catch (error) {
     logger.error('Failed to start server:', error);

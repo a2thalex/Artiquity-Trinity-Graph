@@ -4,7 +4,7 @@ import { validateRSLDocument } from '../middleware/validation.js';
 
 export class RSLGenerator {
   constructor() {
-    this.namespace = 'https:
+    this.namespace = 'https://rslstandard.org/rsl';
     this.version = '1.0';
   }
 
@@ -12,7 +12,7 @@ export class RSLGenerator {
     try {
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rsl:license xmlns:rsl="${this.namespace}" 
-             xmlns:xsi="http:
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="${this.namespace} ${this.namespace}/schema/rsl-1.0.xsd"
              version="${this.version}"
              id="${rslData.licenseId}"
