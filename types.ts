@@ -1,4 +1,4 @@
-// FIX: Defined the core RSLFile and LicenseOptions types to resolve module errors and provide a data structure for the application.
+
 export interface RSLFile {
     file: File;
     previewUrl: string;

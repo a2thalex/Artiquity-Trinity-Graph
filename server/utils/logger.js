@@ -5,7 +5,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Create logs directory if it doesn't exist
 const logDir = path.join(__dirname, '../../logs');
 
 const logger = winston.createLogger({
@@ -19,23 +18,20 @@ const logger = winston.createLogger({
   ),
   defaultMeta: { service: 'rsl-platform' },
   transports: [
-    // Write all logs with importance level of `error` or less to `error.log`
     new winston.transports.File({
       filename: path.join(logDir, 'error.log'),
       level: 'error',
-      maxsize: 5242880, // 5MB
+      maxsize: 5242880,
       maxFiles: 5
     }),
-    // Write all logs with importance level of `info` or less to `combined.log`
     new winston.transports.File({
       filename: path.join(logDir, 'combined.log'),
-      maxsize: 5242880, // 5MB
+      maxsize: 5242880,
       maxFiles: 5
     })
   ]
 });
 
-// If we're not in production, log to the console as well
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new winston.transports.Console({
     format: winston.format.combine(

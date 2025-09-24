@@ -7,13 +7,13 @@ import { validateLicenseRequest } from '../middleware/validation.js';
 
 const router = express.Router();
 
-// Process payment for license
+
 router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (req, res, next) => {
   try {
     const { contentId, userId, userType, countryCode, permissions, paymentInfo } = req.body;
     const db = getDatabase();
 
-    // Find license by content ID
+    
     const license = await db.get(
       'SELECT * FROM rsl_licenses WHERE content_id = ? AND is_active = 1',
       [contentId]
@@ -26,7 +26,7 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
       });
     }
 
-    // Parse license data
+    
     const licenseData = {
       permissions: JSON.parse(license.permissions),
       userTypes: JSON.parse(license.user_types),
@@ -34,7 +34,7 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
       geographicRestrictions: JSON.parse(license.geographic_restrictions)
     };
 
-    // Validate user type and permissions
+    
     const userTypeAllowed = licenseData.userTypes.find(ut => ut.type === userType);
     if (!userTypeAllowed || !userTypeAllowed.allowed) {
       return res.status(403).json({
@@ -43,7 +43,7 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
       });
     }
 
-    // Check geographic restrictions
+    
     const geoRestriction = licenseData.geographicRestrictions.find(gr => gr.countryCode === countryCode);
     if (geoRestriction && !geoRestriction.allowed) {
       return res.status(403).json({
@@ -52,7 +52,7 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
       });
     }
 
-    // Check if payment is required
+    
     const requiredPermissions = licenseData.permissions.filter(p => permissions.includes(p.type) && p.allowed);
     const needsPayment = requiredPermissions.some(p => p.conditions?.includes('payment'));
 
@@ -65,7 +65,7 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
       });
     }
 
-    // Process payment if required
+    
     let paymentResult = null;
     if (needsPayment && paymentInfo) {
       paymentResult = await processPayment(paymentInfo, licenseData.paymentModel, license);
@@ -78,11 +78,11 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
       }
     }
 
-    // Generate access token
+    
     const accessToken = `rsl_${uuidv4().replace(/-/g, '')}`;
-    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+    const expiresAt = new Date(Date.now() + 3600000); 
 
-    // Store access token
+    
     await db.run(
       `INSERT INTO oauth_tokens (id, access_token, client_id, user_id, scope, expires_at)
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -96,7 +96,7 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
       ]
     );
 
-    // Record payment transaction if payment was made
+    
     if (paymentResult) {
       await db.run(
         `INSERT INTO payment_transactions (
@@ -118,7 +118,7 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
       );
     }
 
-    // Log audit trail
+    
     await db.run(
       `INSERT INTO audit_trail (id, license_id, user_id, action, ip_address, user_agent, details)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -166,7 +166,7 @@ router.post('/process', authenticateOAuthToken, validateLicenseRequest, async (r
   }
 });
 
-// Get payment history for user
+
 router.get('/history', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { page = 1, limit = 20 } = req.query;
@@ -184,7 +184,7 @@ router.get('/history', authenticateOAuthToken, async (req, res, next) => {
       [userId, parseInt(limit), offset]
     );
 
-    // Get total count
+    
     const countResult = await db.get(
       'SELECT COUNT(*) as total FROM payment_transactions WHERE user_id = ?',
       [userId]
@@ -217,14 +217,14 @@ router.get('/history', authenticateOAuthToken, async (req, res, next) => {
   }
 });
 
-// Refund payment
+
 router.post('/refund/:transactionId', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { transactionId } = req.params;
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Get transaction
+    
     const transaction = await db.get(
       `SELECT pt.*, rl.license_id, rl.title
        FROM payment_transactions pt
@@ -247,7 +247,7 @@ router.post('/refund/:transactionId', authenticateOAuthToken, async (req, res, n
       });
     }
 
-    // Process refund (simplified - in real implementation, you would call payment provider API)
+    
     const refundResult = await processRefund(transaction);
 
     if (!refundResult.success) {
@@ -257,13 +257,13 @@ router.post('/refund/:transactionId', authenticateOAuthToken, async (req, res, n
       });
     }
 
-    // Update transaction status
+    
     await db.run(
       'UPDATE payment_transactions SET status = ? WHERE id = ?',
       ['refunded', transactionId]
     );
 
-    // Log audit trail
+    
     await db.run(
       `INSERT INTO audit_trail (id, license_id, user_id, action, ip_address, user_agent, details)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -302,11 +302,11 @@ router.post('/refund/:transactionId', authenticateOAuthToken, async (req, res, n
   }
 });
 
-// Helper functions
+
 async function processPayment(paymentInfo, paymentModel, license) {
   try {
-    // In a real implementation, you would integrate with Stripe, PayPal, etc.
-    // This is a simplified mock implementation
+    
+    
     
     switch (paymentInfo.method) {
       case 'stripe':
@@ -331,7 +331,7 @@ async function processPayment(paymentInfo, paymentModel, license) {
 }
 
 async function processStripePayment(paymentInfo, paymentModel) {
-  // Mock Stripe payment processing
+  
   return {
     success: true,
     transactionId: `stripe_${uuidv4().replace(/-/g, '')}`,
@@ -341,7 +341,7 @@ async function processStripePayment(paymentInfo, paymentModel) {
 }
 
 async function processPayPalPayment(paymentInfo, paymentModel) {
-  // Mock PayPal payment processing
+  
   return {
     success: true,
     transactionId: `paypal_${uuidv4().replace(/-/g, '')}`,
@@ -351,7 +351,7 @@ async function processPayPalPayment(paymentInfo, paymentModel) {
 }
 
 async function processCryptoPayment(paymentInfo, paymentModel) {
-  // Mock crypto payment processing
+  
   return {
     success: true,
     transactionId: `crypto_${uuidv4().replace(/-/g, '')}`,
@@ -362,7 +362,7 @@ async function processCryptoPayment(paymentInfo, paymentModel) {
 
 async function processRefund(transaction) {
   try {
-    // Mock refund processing
+    
     return {
       success: true,
       refundId: `refund_${uuidv4().replace(/-/g, '')}`

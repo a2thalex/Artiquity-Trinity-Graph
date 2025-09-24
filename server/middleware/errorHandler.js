@@ -1,7 +1,7 @@
 import { logger } from '../utils/logger.js';
 
 export function errorHandler(err, req, res, next) {
-  // Log the error
+  
   logger.error('Unhandled error:', {
     error: err.message,
     stack: err.stack,
@@ -12,15 +12,15 @@ export function errorHandler(err, req, res, next) {
     timestamp: new Date().toISOString()
   });
 
-  // Don't leak error details in production
+  
   const isDevelopment = process.env.NODE_ENV === 'development';
   
-  // Default error response
+  
   let statusCode = 500;
   let message = 'Internal Server Error';
   let details = null;
 
-  // Handle specific error types
+  
   if (err.name === 'ValidationError') {
     statusCode = 400;
     message = 'Validation Error';
@@ -45,7 +45,7 @@ export function errorHandler(err, req, res, next) {
     message = err.message;
   }
 
-  // Prepare error response
+  
   const errorResponse = {
     error: message,
     timestamp: new Date().toISOString(),
@@ -53,12 +53,12 @@ export function errorHandler(err, req, res, next) {
     method: req.method
   };
 
-  // Add details in development or for specific error types
+  
   if (isDevelopment || details) {
     errorResponse.details = details;
   }
 
-  // Add stack trace in development
+  
   if (isDevelopment && err.stack) {
     errorResponse.stack = err.stack;
   }

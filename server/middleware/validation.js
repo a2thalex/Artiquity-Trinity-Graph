@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-// Token request validation schema
+
 const tokenRequestSchema = Joi.object({
   grant_type: Joi.string().valid('authorization_code', 'client_credentials', 'rsl').required(),
   client_id: Joi.string().required(),
@@ -33,13 +33,13 @@ const tokenRequestSchema = Joi.object({
   })
 });
 
-// Token introspection validation schema
+
 const introspectionRequestSchema = Joi.object({
   token: Joi.string().required(),
   token_type_hint: Joi.string().valid('access_token', 'refresh_token').optional()
 });
 
-// License request validation schema
+
 const licenseRequestSchema = Joi.object({
   contentId: Joi.string().required(),
   userId: Joi.string().required(),
@@ -54,9 +54,9 @@ const licenseRequestSchema = Joi.object({
   }).optional()
 });
 
-// RSL document validation schema
+
 const rslDocumentSchema = Joi.object({
-  namespace: Joi.string().valid('https://rslstandard.org/rsl').required(),
+  namespace: Joi.string().valid('https:
   version: Joi.string().required(),
   licenseId: Joi.string().required(),
   createdAt: Joi.string().isoDate().required(),
@@ -124,7 +124,7 @@ const rslDocumentSchema = Joi.object({
   }).required()
 });
 
-// Validation middleware functions
+
 export function validateTokenRequest(req, res, next) {
   const { error } = tokenRequestSchema.validate(req.body);
   if (error) {
@@ -169,7 +169,7 @@ export function validateRSLDocument(req, res, next) {
   next();
 }
 
-// Generic validation middleware
+
 export function validateRequest(schema) {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);

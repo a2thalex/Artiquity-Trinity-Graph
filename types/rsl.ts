@@ -1,6 +1,6 @@
-// RSL Platform Type Definitions
+
 export interface RSLDocument {
-  namespace: 'https://rslstandard.org/rsl';
+  namespace: 'https:
   version: string;
   licenseId: string;
   createdAt: string;
@@ -38,7 +38,7 @@ export interface RSLUserType {
 }
 
 export interface GeographicRestriction {
-  countryCode: string; // ISO 3166-1 alpha-2
+  countryCode: string; 
   allowed: boolean;
   conditions?: string[];
 }
@@ -88,7 +88,7 @@ export interface AuditEntry {
   details: Record<string, any>;
 }
 
-// OAuth 2.0 OLP Types
+
 export interface OAuthToken {
   access_token: string;
   token_type: 'Bearer';
@@ -134,7 +134,7 @@ export interface JWK {
   y?: string;
 }
 
-// File Processing Types
+
 export interface FileMetadata {
   exif?: Record<string, any>;
   xmp?: Record<string, any>;
@@ -149,7 +149,7 @@ export interface EmbeddedRSL {
   size: number;
 }
 
-// API Types
+
 export interface LicenseRequest {
   contentId: string;
   userId: string;
@@ -176,7 +176,7 @@ export interface LicenseResponse {
   error?: string;
 }
 
-// UI Types
+
 export interface LicenseTemplate {
   id: string;
   name: string;
@@ -193,7 +193,7 @@ export interface BatchLicenseRequest {
   customizations?: Partial<RSLDocument>;
 }
 
-// Webhook Types
+
 export interface WebhookEvent {
   id: string;
   type: 'license.created' | 'license.updated' | 'license.expired' | 'payment.completed' | 'usage.detected';

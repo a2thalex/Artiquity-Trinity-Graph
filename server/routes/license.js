@@ -8,17 +8,17 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Create new RSL license
+
 router.post('/create', authenticateToken, validateRSLDocument, async (req, res, next) => {
   try {
     const rslData = req.body;
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Generate RSL XML
+    
     const xmlContent = rslGenerator.generateRSLXML(rslData);
 
-    // Validate XML
+    
     const validation = await rslGenerator.validateRSLXML(xmlContent);
     if (!validation.valid) {
       return res.status(400).json({
@@ -28,7 +28,7 @@ router.post('/create', authenticateToken, validateRSLDocument, async (req, res, 
       });
     }
 
-    // Store license in database
+    
     const licenseId = uuidv4();
     await db.run(
       `INSERT INTO rsl_licenses (
@@ -59,7 +59,7 @@ router.post('/create', authenticateToken, validateRSLDocument, async (req, res, 
       ]
     );
 
-    // Log audit trail
+    
     await db.run(
       `INSERT INTO audit_trail (id, license_id, user_id, action, ip_address, user_agent, details)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -92,7 +92,7 @@ router.post('/create', authenticateToken, validateRSLDocument, async (req, res, 
   }
 });
 
-// Get license by ID
+
 router.get('/:licenseId', authenticateToken, async (req, res, next) => {
   try {
     const { licenseId } = req.params;
@@ -110,7 +110,7 @@ router.get('/:licenseId', authenticateToken, async (req, res, next) => {
       });
     }
 
-    // Check if user has access to this license
+    
     if (license.user_id !== req.user.id && !req.user.isAdmin) {
       return res.status(403).json({
         error: 'access_denied',
@@ -118,7 +118,7 @@ router.get('/:licenseId', authenticateToken, async (req, res, next) => {
       });
     }
 
-    // Parse stored data
+    
     const licenseData = {
       id: license.license_id,
       title: license.title,
@@ -146,7 +146,7 @@ router.get('/:licenseId', authenticateToken, async (req, res, next) => {
   }
 });
 
-// List user's licenses
+
 router.get('/', authenticateToken, async (req, res, next) => {
   try {
     const { page = 1, limit = 20, status = 'all' } = req.query;
@@ -170,7 +170,7 @@ router.get('/', authenticateToken, async (req, res, next) => {
 
     const licenses = await db.all(query, params);
 
-    // Get total count
+    
     let countQuery = 'SELECT COUNT(*) as total FROM rsl_licenses WHERE user_id = ?';
     let countParams = [userId];
 
@@ -211,7 +211,7 @@ router.get('/', authenticateToken, async (req, res, next) => {
   }
 });
 
-// Update license
+
 router.put('/:licenseId', authenticateToken, validateRSLDocument, async (req, res, next) => {
   try {
     const { licenseId } = req.params;
@@ -219,7 +219,7 @@ router.put('/:licenseId', authenticateToken, validateRSLDocument, async (req, re
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Check if license exists and user owns it
+    
     const existingLicense = await db.get(
       'SELECT * FROM rsl_licenses WHERE license_id = ? AND user_id = ?',
       [licenseId, userId]
@@ -232,10 +232,10 @@ router.put('/:licenseId', authenticateToken, validateRSLDocument, async (req, re
       });
     }
 
-    // Generate updated RSL XML
+    
     const xmlContent = rslGenerator.generateRSLXML(rslData);
 
-    // Validate XML
+    
     const validation = await rslGenerator.validateRSLXML(xmlContent);
     if (!validation.valid) {
       return res.status(400).json({
@@ -245,7 +245,7 @@ router.put('/:licenseId', authenticateToken, validateRSLDocument, async (req, re
       });
     }
 
-    // Update license
+    
     await db.run(
       `UPDATE rsl_licenses SET 
         title = ?, description = ?, xml_content = ?, permissions = ?, 
@@ -269,7 +269,7 @@ router.put('/:licenseId', authenticateToken, validateRSLDocument, async (req, re
       ]
     );
 
-    // Log audit trail
+    
     await db.run(
       `INSERT INTO audit_trail (id, license_id, user_id, action, ip_address, user_agent, details)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -302,14 +302,14 @@ router.put('/:licenseId', authenticateToken, validateRSLDocument, async (req, re
   }
 });
 
-// Deactivate license
+
 router.delete('/:licenseId', authenticateToken, async (req, res, next) => {
   try {
     const { licenseId } = req.params;
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Check if license exists and user owns it
+    
     const existingLicense = await db.get(
       'SELECT * FROM rsl_licenses WHERE license_id = ? AND user_id = ?',
       [licenseId, userId]
@@ -322,13 +322,13 @@ router.delete('/:licenseId', authenticateToken, async (req, res, next) => {
       });
     }
 
-    // Deactivate license
+    
     await db.run(
       'UPDATE rsl_licenses SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE license_id = ? AND user_id = ?',
       [licenseId, userId]
     );
 
-    // Log audit trail
+    
     await db.run(
       `INSERT INTO audit_trail (id, license_id, user_id, action, ip_address, user_agent, details)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -358,7 +358,7 @@ router.delete('/:licenseId', authenticateToken, async (req, res, next) => {
   }
 });
 
-// Get license templates
+
 router.get('/templates/list', async (req, res, next) => {
   try {
     const db = getDatabase();
@@ -385,14 +385,14 @@ router.get('/templates/list', async (req, res, next) => {
   }
 });
 
-// Get license usage statistics
+
 router.get('/:licenseId/stats', authenticateToken, async (req, res, next) => {
   try {
     const { licenseId } = req.params;
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Check if license exists and user owns it
+    
     const license = await db.get(
       'SELECT * FROM rsl_licenses WHERE license_id = ? AND user_id = ?',
       [licenseId, userId]
@@ -405,19 +405,19 @@ router.get('/:licenseId/stats', authenticateToken, async (req, res, next) => {
       });
     }
 
-    // Get audit trail entries
+    
     const auditEntries = await db.all(
       'SELECT * FROM audit_trail WHERE license_id = ? ORDER BY timestamp DESC LIMIT 100',
       [license.id]
     );
 
-    // Get payment transactions
+    
     const payments = await db.all(
       'SELECT * FROM payment_transactions WHERE license_id = ? ORDER BY created_at DESC',
       [license.id]
     );
 
-    // Calculate statistics
+    
     const stats = {
       totalViews: auditEntries.filter(entry => entry.action === 'license_viewed').length,
       totalDownloads: auditEntries.filter(entry => entry.action === 'license_downloaded').length,

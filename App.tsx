@@ -2,11 +2,9 @@
 import React, { useState } from 'react';
 import { LandingPage } from './components/LandingPage';
 
-// Marketing Landing Page Component
 const MarketingLandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#E8F0FE' }}>
-      {/* Header */}
       <header className="fixed top-0 w-full z-50" style={{ backgroundColor: 'rgba(232, 240, 254, 0.95)', backdropFilter: 'blur(20px)' }}>
         <div className="max-w-7xl mx-auto px-10 py-5 border-b" style={{ borderColor: 'rgba(107, 114, 128, 0.2)' }}>
           <nav className="flex justify-between items-center">
@@ -16,7 +14,6 @@ const MarketingLandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetSta
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="min-h-screen flex items-center relative pt-24">
         <div className="max-w-7xl mx-auto px-10">
           <div className="max-w-4xl z-10 relative">
@@ -52,7 +49,6 @@ const MarketingLandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetSta
           </div>
         </div>
 
-        {/* Floating Art Carousels */}
         <div className="absolute top-0 right-0 w-2/5 h-screen overflow-hidden z-0">
           <div className="absolute w-44 h-screen" style={{ right: '200px', top: '-100px' }}>
             <div className="flex flex-col gap-5 animate-bounce" style={{ animation: 'float-vertical 20s linear infinite' }}>
@@ -67,11 +63,9 @@ const MarketingLandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetSta
           </div>
         </div>
 
-        {/* Gradient Overlay */}
         <div className="absolute top-0 right-0 w-1/3 h-full z-10 pointer-events-none" style={{ background: 'linear-gradient(90deg, rgba(232, 240, 254, 0.3) 0%, rgba(232, 240, 254, 0.1) 50%, transparent 100%)' }}></div>
       </section>
 
-      {/* Features Section */}
       <section className="py-24" style={{ background: 'linear-gradient(180deg, #E8F0FE 0%, #F3F4F6 100%)' }}>
         <div className="max-w-7xl mx-auto px-10">
           <h2 className="text-5xl font-extrabold text-center mb-5" style={{ color: '#000000' }}>How It Works</h2>
@@ -101,7 +95,6 @@ const MarketingLandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetSta
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="w-full max-w-7xl mx-auto px-10 py-6">
         <div className="flex justify-between items-center text-sm" style={{ color: '#9CA3AF' }}>
           <div>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
@@ -116,7 +109,6 @@ const MarketingLandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetSta
   );
 };
 
-// Main App Component
 function App() {
   const [showApp, setShowApp] = useState(false);
 

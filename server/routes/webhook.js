@@ -7,14 +7,14 @@ import { authenticateOAuthToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Register webhook endpoint
+
 router.post('/register', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { url, events } = req.body;
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Validate URL
+    
     try {
       new URL(url);
     } catch (error) {
@@ -24,7 +24,7 @@ router.post('/register', authenticateOAuthToken, async (req, res, next) => {
       });
     }
 
-    // Validate events
+    
     const validEvents = [
       'license.created',
       'license.updated',
@@ -41,10 +41,10 @@ router.post('/register', authenticateOAuthToken, async (req, res, next) => {
       });
     }
 
-    // Generate webhook secret
+    
     const secret = crypto.randomBytes(32).toString('hex');
 
-    // Store webhook endpoint
+    
     const webhookId = uuidv4();
     await db.run(
       `INSERT INTO webhook_endpoints (id, user_id, url, events, secret, is_active)
@@ -79,7 +79,7 @@ router.post('/register', authenticateOAuthToken, async (req, res, next) => {
   }
 });
 
-// List user's webhook endpoints
+
 router.get('/list', authenticateOAuthToken, async (req, res, next) => {
   try {
     const db = getDatabase();
@@ -105,7 +105,7 @@ router.get('/list', authenticateOAuthToken, async (req, res, next) => {
   }
 });
 
-// Update webhook endpoint
+
 router.put('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { webhookId } = req.params;
@@ -113,7 +113,7 @@ router.put('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Check if webhook exists and user owns it
+    
     const existingWebhook = await db.get(
       'SELECT * FROM webhook_endpoints WHERE id = ? AND user_id = ?',
       [webhookId, userId]
@@ -126,7 +126,7 @@ router.put('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
       });
     }
 
-    // Validate URL if provided
+    
     if (url) {
       try {
         new URL(url);
@@ -138,7 +138,7 @@ router.put('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
       }
     }
 
-    // Validate events if provided
+    
     if (events) {
       const validEvents = [
         'license.created',
@@ -157,7 +157,7 @@ router.put('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
       }
     }
 
-    // Update webhook
+    
     const updateFields = [];
     const updateValues = [];
 
@@ -206,14 +206,14 @@ router.put('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
   }
 });
 
-// Delete webhook endpoint
+
 router.delete('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { webhookId } = req.params;
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Check if webhook exists and user owns it
+    
     const existingWebhook = await db.get(
       'SELECT * FROM webhook_endpoints WHERE id = ? AND user_id = ?',
       [webhookId, userId]
@@ -226,7 +226,7 @@ router.delete('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
       });
     }
 
-    // Delete webhook
+    
     await db.run(
       'DELETE FROM webhook_endpoints WHERE id = ? AND user_id = ?',
       [webhookId, userId]
@@ -247,14 +247,14 @@ router.delete('/:webhookId', authenticateOAuthToken, async (req, res, next) => {
   }
 });
 
-// Test webhook endpoint
+
 router.post('/:webhookId/test', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { webhookId } = req.params;
     const db = getDatabase();
     const userId = req.user.id;
 
-    // Check if webhook exists and user owns it
+    
     const webhook = await db.get(
       'SELECT * FROM webhook_endpoints WHERE id = ? AND user_id = ?',
       [webhookId, userId]
@@ -267,7 +267,7 @@ router.post('/:webhookId/test', authenticateOAuthToken, async (req, res, next) =
       });
     }
 
-    // Create test webhook event
+    
     const testEvent = {
       id: uuidv4(),
       type: 'webhook.test',
@@ -279,7 +279,7 @@ router.post('/:webhookId/test', authenticateOAuthToken, async (req, res, next) =
       timestamp: new Date().toISOString()
     };
 
-    // Send test webhook
+    
     const result = await sendWebhook(webhook, testEvent);
 
     res.json({
@@ -293,7 +293,7 @@ router.post('/:webhookId/test', authenticateOAuthToken, async (req, res, next) =
   }
 });
 
-// Get webhook delivery history
+
 router.get('/:webhookId/history', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { webhookId } = req.params;
@@ -302,7 +302,7 @@ router.get('/:webhookId/history', authenticateOAuthToken, async (req, res, next)
     const userId = req.user.id;
     const offset = (page - 1) * limit;
 
-    // Check if webhook exists and user owns it
+    
     const webhook = await db.get(
       'SELECT * FROM webhook_endpoints WHERE id = ? AND user_id = ?',
       [webhookId, userId]
@@ -315,7 +315,7 @@ router.get('/:webhookId/history', authenticateOAuthToken, async (req, res, next)
       });
     }
 
-    // Get webhook events
+    
     const events = await db.all(
       `SELECT * FROM webhook_events 
        WHERE endpoint_id = ? 
@@ -324,7 +324,7 @@ router.get('/:webhookId/history', authenticateOAuthToken, async (req, res, next)
       [webhookId, parseInt(limit), offset]
     );
 
-    // Get total count
+    
     const countResult = await db.get(
       'SELECT COUNT(*) as total FROM webhook_events WHERE endpoint_id = ?',
       [webhookId]
@@ -355,7 +355,7 @@ router.get('/:webhookId/history', authenticateOAuthToken, async (req, res, next)
   }
 });
 
-// Helper function to send webhook
+
 async function sendWebhook(webhook, event) {
   try {
     const payload = JSON.stringify(event);
@@ -373,14 +373,14 @@ async function sendWebhook(webhook, event) {
         'User-Agent': 'RSL-Platform-Webhook/1.0'
       },
       body: payload,
-      timeout: 10000 // 10 second timeout
+      timeout: 10000 
     });
 
     const success = response.ok;
     const status = response.status;
     const responseText = await response.text();
 
-    // Store webhook event
+    
     const db = getDatabase();
     await db.run(
       `INSERT INTO webhook_events (id, endpoint_id, event_type, payload, status, attempts, last_attempt_at)
@@ -404,7 +404,7 @@ async function sendWebhook(webhook, event) {
   } catch (error) {
     logger.error('Webhook delivery error:', error);
     
-    // Store failed webhook event
+    
     const db = getDatabase();
     await db.run(
       `INSERT INTO webhook_events (id, endpoint_id, event_type, payload, status, attempts, last_attempt_at)

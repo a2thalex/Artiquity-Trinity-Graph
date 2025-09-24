@@ -4,18 +4,15 @@ import { validateRSLDocument } from '../middleware/validation.js';
 
 export class RSLGenerator {
   constructor() {
-    this.namespace = 'https://rslstandard.org/rsl';
+    this.namespace = 'https:
     this.version = '1.0';
   }
 
-  /**
-   * Generate RSL XML document from license data
-   */
   generateRSLXML(rslData) {
     try {
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rsl:license xmlns:rsl="${this.namespace}" 
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsi="http:
              xsi:schemaLocation="${this.namespace} ${this.namespace}/schema/rsl-1.0.xsd"
              version="${this.version}"
              id="${rslData.licenseId}"
@@ -113,13 +110,8 @@ export class RSLGenerator {
     }
   }
 
-  /**
-   * Validate RSL XML against schema
-   */
   async validateRSLXML(xmlContent) {
     try {
-      // In a real implementation, you would use libxmljs2 or similar to validate against XSD
-      // For now, we'll do basic XML structure validation
       
       if (!xmlContent.includes('<?xml version="1.0"')) {
         throw new Error('Invalid XML declaration');
@@ -133,7 +125,6 @@ export class RSLGenerator {
         throw new Error('Missing RSL license root element');
       }
 
-      // Check for required elements
       const requiredElements = [
         'rsl:content',
         'rsl:permissions',
@@ -162,9 +153,6 @@ export class RSLGenerator {
     }
   }
 
-  /**
-   * Create RSL document from license options
-   */
   createRSLDocument(licenseOptions, fileInfo, userInfo) {
     const now = new Date().toISOString();
     const licenseId = `rsl_${uuidv4().replace(/-/g, '')}`;
@@ -223,9 +211,6 @@ export class RSLGenerator {
     return rslDocument;
   }
 
-  /**
-   * Create permissions array from license options
-   */
   createPermissions(licenseOptions) {
     const permissions = [
       {
@@ -258,9 +243,6 @@ export class RSLGenerator {
     return permissions;
   }
 
-  /**
-   * Create user types array from license options
-   */
   createUserTypes(licenseOptions) {
     const userTypes = [
       {
@@ -299,11 +281,7 @@ export class RSLGenerator {
     return userTypes;
   }
 
-  /**
-   * Create geographic restrictions from license options
-   */
   createGeographicRestrictions(licenseOptions) {
-    // Default to allowing all countries unless specified
     if (!licenseOptions.geographicRestrictions || licenseOptions.geographicRestrictions.length === 0) {
       return [
         { countryCode: 'US', allowed: true },
@@ -319,9 +297,6 @@ export class RSLGenerator {
     return licenseOptions.geographicRestrictions;
   }
 
-  /**
-   * Create payment model from license options
-   */
   createPaymentModel(licenseOptions) {
     if (licenseOptions.commercialUse === 'yes') {
       return {
@@ -341,18 +316,10 @@ export class RSLGenerator {
     }
   }
 
-  /**
-   * Generate file hash for content identification
-   */
   generateFileHash(fileInfo) {
-    // In a real implementation, you would generate an actual hash
-    // For now, we'll create a placeholder
     return `sha256_${uuidv4().replace(/-/g, '')}`;
   }
 
-  /**
-   * Escape XML special characters
-   */
   escapeXML(text) {
     if (!text) return '';
     return text

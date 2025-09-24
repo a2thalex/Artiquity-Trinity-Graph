@@ -18,7 +18,7 @@ export async function initDatabase() {
           return;
         }
 
-        // Enable foreign keys
+        
         db.exec('PRAGMA foreign_keys = ON', (err) => {
           if (err) {
             logger.error('Failed to enable foreign keys:', err);
@@ -26,7 +26,7 @@ export async function initDatabase() {
             return;
           }
 
-          // Create tables
+          
           createTables()
             .then(() => insertDefaultData())
             .then(() => {
@@ -46,7 +46,7 @@ export async function initDatabase() {
 function createTables() {
   return new Promise((resolve, reject) => {
     const tables = [
-      // Users table
+      
       `CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
@@ -58,7 +58,7 @@ function createTables() {
         is_active BOOLEAN DEFAULT 1
       )`,
 
-      // OAuth clients table
+      
       `CREATE TABLE IF NOT EXISTS oauth_clients (
         id TEXT PRIMARY KEY,
         client_id TEXT UNIQUE NOT NULL,
@@ -71,7 +71,7 @@ function createTables() {
         is_active BOOLEAN DEFAULT 1
       )`,
 
-      // OAuth tokens table
+      
       `CREATE TABLE IF NOT EXISTS oauth_tokens (
         id TEXT PRIMARY KEY,
         access_token TEXT UNIQUE NOT NULL,
@@ -85,7 +85,7 @@ function createTables() {
         FOREIGN KEY (user_id) REFERENCES users (id)
       )`,
 
-      // RSL licenses table
+      
       `CREATE TABLE IF NOT EXISTS rsl_licenses (
         id TEXT PRIMARY KEY,
         license_id TEXT UNIQUE NOT NULL,
@@ -110,7 +110,7 @@ function createTables() {
         FOREIGN KEY (user_id) REFERENCES users (id)
       )`,
 
-      // File metadata table
+      
       `CREATE TABLE IF NOT EXISTS file_metadata (
         id TEXT PRIMARY KEY,
         license_id TEXT NOT NULL,
@@ -123,7 +123,7 @@ function createTables() {
         FOREIGN KEY (license_id) REFERENCES rsl_licenses (id)
       )`,
 
-      // Content encryption table
+      
       `CREATE TABLE IF NOT EXISTS content_encryption (
         id TEXT PRIMARY KEY,
         license_id TEXT NOT NULL,
@@ -135,7 +135,7 @@ function createTables() {
         FOREIGN KEY (license_id) REFERENCES rsl_licenses (id)
       )`,
 
-      // JWK keys table
+      
       `CREATE TABLE IF NOT EXISTS jwk_keys (
         id TEXT PRIMARY KEY,
         key_id TEXT UNIQUE NOT NULL,
@@ -149,7 +149,7 @@ function createTables() {
         is_active BOOLEAN DEFAULT 1
       )`,
 
-      // Audit trail table
+      
       `CREATE TABLE IF NOT EXISTS audit_trail (
         id TEXT PRIMARY KEY,
         license_id TEXT,
@@ -163,7 +163,7 @@ function createTables() {
         FOREIGN KEY (user_id) REFERENCES users (id)
       )`,
 
-      // Payment transactions table
+      
       `CREATE TABLE IF NOT EXISTS payment_transactions (
         id TEXT PRIMARY KEY,
         license_id TEXT NOT NULL,
@@ -180,7 +180,7 @@ function createTables() {
         FOREIGN KEY (user_id) REFERENCES users (id)
       )`,
 
-      // License templates table
+      
       `CREATE TABLE IF NOT EXISTS license_templates (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -194,7 +194,7 @@ function createTables() {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )`,
 
-      // Webhook endpoints table
+      
       `CREATE TABLE IF NOT EXISTS webhook_endpoints (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -206,7 +206,7 @@ function createTables() {
         FOREIGN KEY (user_id) REFERENCES users (id)
       )`,
 
-      // Webhook events table
+      
       `CREATE TABLE IF NOT EXISTS webhook_events (
         id TEXT PRIMARY KEY,
         endpoint_id TEXT NOT NULL,
@@ -232,7 +232,7 @@ function createTables() {
         }
         completed++;
         if (completed === total) {
-          // Create indexes
+          
           createIndexes().then(resolve).catch(reject);
         }
       });
@@ -273,13 +273,13 @@ function createIndexes() {
 
 function insertDefaultData() {
   return new Promise((resolve, reject) => {
-    // Insert default OAuth client
+    
     const defaultClient = {
       id: 'default-client',
       client_id: 'rsl-platform-client',
       client_secret: 'rsl-platform-secret-key-change-in-production',
       name: 'RSL Platform Default Client',
-      redirect_uris: 'http://localhost:3000/callback',
+      redirect_uris: 'http:
       grant_types: 'authorization_code,client_credentials,rsl',
       scope: 'read,write,license'
     };
@@ -303,7 +303,7 @@ function insertDefaultData() {
           return;
         }
 
-        // Insert default license templates
+        
         insertDefaultTemplates().then(resolve).catch(reject);
       }
     );

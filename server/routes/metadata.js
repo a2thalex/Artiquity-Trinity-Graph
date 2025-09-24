@@ -8,19 +8,19 @@ import { MetadataEmbedder } from '../services/metadataEmbedder.js';
 
 const router = express.Router();
 
-// Configure multer for file uploads
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 100 * 1024 * 1024 // 100MB limit
+    fileSize: 100 * 1024 * 1024 
   },
   fileFilter: (req, file, cb) => {
-    // Allow all file types for metadata embedding
+    
     cb(null, true);
   }
 });
 
-// Embed RSL metadata in file
+
 router.post('/embed', authenticateOAuthToken, upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) {
@@ -33,7 +33,7 @@ router.post('/embed', authenticateOAuthToken, upload.single('file'), async (req,
     const { licenseId, format } = req.body;
     const db = getDatabase();
 
-    // Verify license exists and user has access
+    
     const license = await db.get(
       'SELECT * FROM rsl_licenses WHERE license_id = ? AND is_active = 1',
       [licenseId]
@@ -46,10 +46,10 @@ router.post('/embed', authenticateOAuthToken, upload.single('file'), async (req,
       });
     }
 
-    // Get RSL XML content
+    
     const rslXML = license.xml_content;
 
-    // Embed metadata based on file type and format
+    
     const embedder = new MetadataEmbedder();
     let embeddedFile;
     let metadataType;
@@ -76,13 +76,13 @@ router.post('/embed', authenticateOAuthToken, upload.single('file'), async (req,
         metadataType = 'sidecar';
         break;
       default:
-        // Auto-detect format based on file type
+        
         const detectedFormat = embedder.detectFormat(req.file);
         embeddedFile = await embedder.embedMetadata(req.file, rslXML, detectedFormat);
         metadataType = detectedFormat;
     }
 
-    // Store metadata embedding record
+    
     const metadataId = uuidv4();
     await db.run(
       `INSERT INTO file_metadata (id, license_id, file_path, metadata_type, embedded_data, size)
@@ -97,7 +97,7 @@ router.post('/embed', authenticateOAuthToken, upload.single('file'), async (req,
       ]
     );
 
-    // Log audit trail
+    
     await db.run(
       `INSERT INTO audit_trail (id, license_id, user_id, action, ip_address, user_agent, details)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -124,7 +124,7 @@ router.post('/embed', authenticateOAuthToken, upload.single('file'), async (req,
       userId: req.user.id
     });
 
-    // Return embedded file
+    
     res.set({
       'Content-Type': req.file.mimetype,
       'Content-Disposition': `attachment; filename="${req.file.originalname}"`,
@@ -138,7 +138,7 @@ router.post('/embed', authenticateOAuthToken, upload.single('file'), async (req,
   }
 });
 
-// Extract RSL metadata from file
+
 router.post('/extract', upload.single('file'), async (req, res, next) => {
   try {
     if (!req.file) {
@@ -158,7 +158,7 @@ router.post('/extract', upload.single('file'), async (req, res, next) => {
       });
     }
 
-    // Validate extracted RSL XML
+    
     const { rslGenerator } = await import('../services/rslGenerator.js');
     const validation = await rslGenerator.validateRSLXML(extractedMetadata);
 
@@ -178,13 +178,13 @@ router.post('/extract', upload.single('file'), async (req, res, next) => {
   }
 });
 
-// Generate robots.txt with RSL directives
+
 router.post('/robots-txt', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { licenseId, domain, additionalDirectives } = req.body;
     const db = getDatabase();
 
-    // Verify license exists
+    
     const license = await db.get(
       'SELECT * FROM rsl_licenses WHERE license_id = ? AND is_active = 1',
       [licenseId]
@@ -197,7 +197,7 @@ router.post('/robots-txt', authenticateOAuthToken, async (req, res, next) => {
       });
     }
 
-    // Generate robots.txt content
+    
     const robotsContent = generateRobotsTxt(license, domain, additionalDirectives);
 
     res.set({
@@ -212,13 +212,13 @@ router.post('/robots-txt', authenticateOAuthToken, async (req, res, next) => {
   }
 });
 
-// Generate HTTP Link headers
+
 router.post('/link-headers', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { licenseId, contentType } = req.body;
     const db = getDatabase();
 
-    // Verify license exists
+    
     const license = await db.get(
       'SELECT * FROM rsl_licenses WHERE license_id = ? AND is_active = 1',
       [licenseId]
@@ -231,7 +231,7 @@ router.post('/link-headers', authenticateOAuthToken, async (req, res, next) => {
       });
     }
 
-    // Generate Link headers
+    
     const linkHeaders = generateLinkHeaders(license, contentType);
 
     res.json({
@@ -245,13 +245,13 @@ router.post('/link-headers', authenticateOAuthToken, async (req, res, next) => {
   }
 });
 
-// Generate RSS feed with RSL namespace
+
 router.post('/rss-feed', authenticateOAuthToken, async (req, res, next) => {
   try {
     const { licenseIds, feedTitle, feedDescription, feedUrl } = req.body;
     const db = getDatabase();
 
-    // Get licenses
+    
     const placeholders = licenseIds.map(() => '?').join(',');
     const licenses = await db.all(
       `SELECT * FROM rsl_licenses WHERE license_id IN (${placeholders}) AND is_active = 1`,
@@ -265,7 +265,7 @@ router.post('/rss-feed', authenticateOAuthToken, async (req, res, next) => {
       });
     }
 
-    // Generate RSS feed
+    
     const rssContent = generateRSSFeed(licenses, feedTitle, feedDescription, feedUrl);
 
     res.set({
@@ -280,7 +280,7 @@ router.post('/rss-feed', authenticateOAuthToken, async (req, res, next) => {
   }
 });
 
-// Helper functions
+
 function generateRobotsTxt(license, domain, additionalDirectives = []) {
   const rslUrl = `${domain}/rsl/${license.license_id}`;
   
@@ -299,7 +299,7 @@ License: ${rslUrl}
 
 `;
 
-  // Add additional directives
+  
   if (additionalDirectives.length > 0) {
     robotsContent += '\n# Additional Directives\n';
     additionalDirectives.forEach(directive => {
@@ -331,11 +331,11 @@ function generateRSSFeed(licenses, title, description, feedUrl) {
   const now = new Date().toISOString();
   
   let rssContent = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:rsl="https://rslstandard.org/rsl">
+<rss version="2.0" xmlns:rsl="https:
   <channel>
     <title>${title || 'RSL Licensed Content'}</title>
     <description>${description || 'Content licensed under RSL standard'}</description>
-    <link>${feedUrl || 'https://rslplatform.com'}</link>
+    <link>${feedUrl || 'https:
     <lastBuildDate>${now}</lastBuildDate>
     <generator>RSL Platform</generator>
     

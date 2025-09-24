@@ -4,12 +4,9 @@ import { logger } from '../utils/logger.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rsl-platform-secret-key-change-in-production';
 
-/**
- * Authenticate JWT token
- */
 export function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const token = authHeader && authHeader.split(' ')[1]; 
 
   if (!token) {
     return res.status(401).json({
@@ -32,12 +29,9 @@ export function authenticateToken(req, res, next) {
   });
 }
 
-/**
- * Authenticate OAuth token from database
- */
 export async function authenticateOAuthToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const token = authHeader && authHeader.split(' ')[1]; 
 
   if (!token) {
     return res.status(401).json({
@@ -49,7 +43,7 @@ export async function authenticateOAuthToken(req, res, next) {
   try {
     const db = getDatabase();
     
-    // Find token in database
+    
     const tokenRecord = await db.get(
       'SELECT * FROM oauth_tokens WHERE access_token = ?',
       [token]
@@ -62,7 +56,7 @@ export async function authenticateOAuthToken(req, res, next) {
       });
     }
 
-    // Check if token is expired
+    
     const now = new Date();
     const expiresAt = new Date(tokenRecord.expires_at);
     
@@ -73,7 +67,7 @@ export async function authenticateOAuthToken(req, res, next) {
       });
     }
 
-    // Get user information
+    
     let user = null;
     if (tokenRecord.user_id) {
       user = await db.get(
@@ -82,7 +76,7 @@ export async function authenticateOAuthToken(req, res, next) {
       );
     }
 
-    // Get client information
+    
     const client = await db.get(
       'SELECT * FROM oauth_clients WHERE id = ? AND is_active = 1',
       [tokenRecord.client_id]
@@ -115,9 +109,6 @@ export async function authenticateOAuthToken(req, res, next) {
   }
 }
 
-/**
- * Require specific scope
- */
 export function requireScope(requiredScope) {
   return (req, res, next) => {
     if (!req.user || !req.user.scope) {
@@ -139,9 +130,6 @@ export function requireScope(requiredScope) {
   };
 }
 
-/**
- * Require specific user type
- */
 export function requireUserType(allowedTypes) {
   return (req, res, next) => {
     if (!req.user || !req.user.userType) {
@@ -162,9 +150,6 @@ export function requireUserType(allowedTypes) {
   };
 }
 
-/**
- * Require admin privileges
- */
 export function requireAdmin(req, res, next) {
   if (!req.user || !req.user.isAdmin) {
     return res.status(403).json({
@@ -176,9 +161,6 @@ export function requireAdmin(req, res, next) {
   next();
 }
 
-/**
- * Optional authentication - doesn't fail if no token
- */
 export function optionalAuth(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -198,9 +180,6 @@ export function optionalAuth(req, res, next) {
   });
 }
 
-/**
- * Rate limiting per user
- */
 export function rateLimitPerUser(maxRequests = 100, windowMs = 15 * 60 * 1000) {
   const requests = new Map();
 
@@ -213,7 +192,7 @@ export function rateLimitPerUser(maxRequests = 100, windowMs = 15 * 60 * 1000) {
     const now = Date.now();
     const windowStart = now - windowMs;
 
-    // Clean old entries
+    
     if (requests.has(userId)) {
       const userRequests = requests.get(userId).filter(time => time > windowStart);
       requests.set(userId, userRequests);

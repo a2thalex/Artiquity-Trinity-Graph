@@ -3,7 +3,6 @@ import { embedRSLMetadata, createRSLMetadata } from './metadataEmbedder';
 
 export async function generateRSL(rslFile: RSLFile, options: LicenseOptions): Promise<File> {
     try {
-        // Embed RSL metadata directly into the file
         const embeddedFile = await embedRSLMetadata(rslFile, options);
         return embeddedFile;
     } catch (error) {
@@ -51,7 +50,7 @@ ${options.subscriptionPeriod ? `* **Subscription Period:** ${options.subscriptio
 ## 5. Technical Implementation
 * **Metadata Embedding:** RSL data will be embedded directly into the file
 * **File Format:** ${rslFile.file.type}
-* **License Server:** https://rslplatform.com/license
+* **License Server:** https:
 * **Contact:** contact@rslplatform.com
 
 **Note:** This metadata will be invisibly embedded into your file. The file will look and function exactly the same, but will contain licensing information that AI systems and crawlers can read.

@@ -4,12 +4,9 @@ import { logger } from '../utils/logger.js';
 
 export class MetadataEmbedder {
   constructor() {
-    this.rslNamespace = 'https://rslstandard.org/rsl';
+    this.rslNamespace = 'https:
   }
 
-  /**
-   * Auto-detect format based on file type
-   */
   detectFormat(file) {
     const mimeType = file.mimetype.toLowerCase();
     
@@ -24,27 +21,24 @@ export class MetadataEmbedder {
     }
   }
 
-  /**
-   * Embed RSL metadata in EXIF data
-   */
   async embedInEXIF(file, rslXML) {
     try {
       if (!file.mimetype.startsWith('image/')) {
         throw new Error('EXIF embedding only supported for image files');
       }
 
-      // Use sharp to embed metadata
+      
       const image = sharp(file.buffer);
       const metadata = await image.metadata();
       
-      // Add RSL metadata to EXIF
+      
       const rslMetadata = {
         'RSL:License': rslXML,
         'RSL:Version': '1.0',
         'RSL:Namespace': this.rslNamespace
       };
 
-      // Embed metadata and return modified image
+      
       const modifiedImage = await image
         .withMetadata({
           exif: {
@@ -65,16 +59,13 @@ export class MetadataEmbedder {
     }
   }
 
-  /**
-   * Embed RSL metadata in XMP data
-   */
   async embedInXMP(file, rslXML) {
     try {
-      // For XMP embedding, we would use a library like node-xmp
-      // This is a simplified implementation
+      
+      
       const xmpData = `<?xml version="1.0" encoding="UTF-8"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/">
-  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <rdf:RDF xmlns:rdf="http:
     <rdf:Description rdf:about="" xmlns:rsl="${this.rslNamespace}">
       <rsl:License>${this.escapeXML(rslXML)}</rsl:License>
       <rsl:Version>1.0</rsl:Version>
@@ -82,8 +73,8 @@ export class MetadataEmbedder {
   </rdf:RDF>
 </x:xmpmeta>`;
 
-      // In a real implementation, you would embed this in the file
-      // For now, we'll return the original file with XMP data attached
+      
+      
       return {
         buffer: Buffer.concat([file.buffer, Buffer.from(xmpData)]),
         size: file.buffer.length + Buffer.byteLength(xmpData),
@@ -95,17 +86,14 @@ export class MetadataEmbedder {
     }
   }
 
-  /**
-   * Embed RSL metadata in ID3 tags
-   */
   async embedInID3(file, rslXML) {
     try {
-      // For ID3 embedding, we would use a library like node-id3
-      // This is a simplified implementation
+      
+      
       const id3Tag = `TXXX:RSL_LICENSE:${rslXML}`;
       
-      // In a real implementation, you would embed this in the MP3 file
-      // For now, we'll return the original file with ID3 data attached
+      
+      
       return {
         buffer: Buffer.concat([file.buffer, Buffer.from(id3Tag)]),
         size: file.buffer.length + Buffer.byteLength(id3Tag),
@@ -117,9 +105,6 @@ export class MetadataEmbedder {
     }
   }
 
-  /**
-   * Embed RSL metadata in HTML
-   */
   async embedInHTML(file, rslXML) {
     try {
       if (file.mimetype !== 'text/html') {
@@ -135,7 +120,7 @@ ${rslXML}
 <link rel="license" href="data:application/rss+xml;base64,${Buffer.from(rslXML).toString('base64')}" />
 `;
 
-      // Insert RSL metadata in head section
+      
       const modifiedHTML = htmlContent.replace(
         /<\/head>/i,
         `${rslScript}\n</head>`
@@ -152,9 +137,6 @@ ${rslXML}
     }
   }
 
-  /**
-   * Create sidecar .rsl file
-   */
   async createSidecarFile(file, rslXML) {
     try {
       const sidecarContent = `# RSL License File
@@ -178,9 +160,6 @@ ${rslXML}
     }
   }
 
-  /**
-   * Embed metadata using auto-detected format
-   */
   async embedMetadata(file, rslXML, format) {
     switch (format) {
       case 'exif':
@@ -198,9 +177,6 @@ ${rslXML}
     }
   }
 
-  /**
-   * Extract RSL metadata from file
-   */
   async extractMetadata(file) {
     try {
       const format = this.detectFormat(file);
@@ -225,9 +201,6 @@ ${rslXML}
     }
   }
 
-  /**
-   * Extract RSL metadata from EXIF
-   */
   async extractFromEXIF(file) {
     try {
       const metadata = await exifr.parse(file.buffer);
@@ -238,12 +211,9 @@ ${rslXML}
     }
   }
 
-  /**
-   * Extract RSL metadata from XMP
-   */
   async extractFromXMP(file) {
     try {
-      // Simplified XMP extraction
+      
       const content = file.buffer.toString('utf-8');
       const match = content.match(/<rsl:License>(.*?)<\/rsl:License>/s);
       return match ? match[1] : null;
@@ -253,12 +223,9 @@ ${rslXML}
     }
   }
 
-  /**
-   * Extract RSL metadata from ID3
-   */
   async extractFromID3(file) {
     try {
-      // Simplified ID3 extraction
+      
       const content = file.buffer.toString('utf-8');
       const match = content.match(/TXXX:RSL_LICENSE:(.*?)$/m);
       return match ? match[1] : null;
@@ -268,20 +235,17 @@ ${rslXML}
     }
   }
 
-  /**
-   * Extract RSL metadata from HTML
-   */
   async extractFromHTML(file) {
     try {
       const content = file.buffer.toString('utf-8');
       
-      // Try to extract from script tag
+      
       const scriptMatch = content.match(/<script[^>]*id="rsl-license"[^>]*>(.*?)<\/script>/s);
       if (scriptMatch) {
         return scriptMatch[1].trim();
       }
       
-      // Try to extract from meta tag
+      
       const metaMatch = content.match(/<meta[^>]*name="rsl-license"[^>]*content="([^"]*)"[^>]*>/i);
       if (metaMatch) {
         return metaMatch[1];
@@ -294,14 +258,11 @@ ${rslXML}
     }
   }
 
-  /**
-   * Extract RSL metadata from sidecar file
-   */
   async extractFromSidecar(file) {
     try {
       const content = file.buffer.toString('utf-8');
       
-      // Extract XML content from sidecar file
+      
       const xmlMatch = content.match(/<rsl:license[^>]*>.*?<\/rsl:license>/s);
       return xmlMatch ? xmlMatch[0] : null;
     } catch (error) {
@@ -310,9 +271,6 @@ ${rslXML}
     }
   }
 
-  /**
-   * Escape XML special characters
-   */
   escapeXML(text) {
     if (!text) return '';
     return text
@@ -323,9 +281,6 @@ ${rslXML}
       .replace(/'/g, '&#39;');
   }
 
-  /**
-   * Escape HTML special characters
-   */
   escapeHTML(text) {
     if (!text) return '';
     return text

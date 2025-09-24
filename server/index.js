@@ -19,23 +19,21 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com"],
-      scriptSrc: ["'self'", "https://cdn.tailwindcss.com", "https://aistudiocdn.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:
+      scriptSrc: ["'self'", "https:
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.stripe.com", "https://api.paypal.com"]
+      connectSrc: ["'self'", "https:
     }
   }
 }));
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 30, // 30 requests per minute
+  windowMs: 60 * 1000,
+  max: 30,
   message: {
     error: 'Too many requests, please try again later.',
     retryAfter: 60
@@ -46,21 +44,18 @@ const limiter = rateLimit({
 
 app.use('/api/', limiter);
 
-// CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
-    : ['http://localhost:3000'],
+    ? ['https:
+    : ['http:
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-RSL-License-ID']
 }));
 
-// Body parsing middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Request logging
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.path}`, {
     ip: req.ip,
@@ -70,7 +65,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
@@ -86,14 +80,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/license', licenseRoutes);
 app.use('/api/metadata', metadataRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/webhook', webhookRoutes);
 
-// Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(join(__dirname, '../dist')));
   
@@ -102,10 +94,8 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-// Error handling middleware
 app.use(errorHandler);
 
-// 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Not Found',
@@ -114,7 +104,6 @@ app.use('*', (req, res) => {
   });
 });
 
-// Initialize database and start server
 async function startServer() {
   try {
     await initDatabase();
@@ -123,7 +112,7 @@ async function startServer() {
     app.listen(PORT, () => {
       logger.info(`RSL Platform server running on port ${PORT}`);
       logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      logger.info(`Health check: http://localhost:${PORT}/health`);
+      logger.info(`Health check: http:
     });
   } catch (error) {
     logger.error('Failed to start server:', error);
@@ -131,7 +120,6 @@ async function startServer() {
   }
 }
 
-// Graceful shutdown
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received, shutting down gracefully');
   process.exit(0);

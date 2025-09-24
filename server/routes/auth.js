@@ -10,13 +10,13 @@ const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'rsl-platform-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
-// OAuth 2.0 Token endpoint
+
 router.post('/token', validateTokenRequest, async (req, res, next) => {
   try {
     const { grant_type, client_id, client_secret, code, redirect_uri, scope } = req.body;
     const db = getDatabase();
 
-    // Verify client credentials
+    
     const client = await db.get(
       'SELECT * FROM oauth_clients WHERE client_id = ? AND is_active = 1',
       [client_id]
@@ -29,7 +29,7 @@ router.post('/token', validateTokenRequest, async (req, res, next) => {
       });
     }
 
-    // Verify client secret
+    
     const secretMatch = await bcrypt.compare(client_secret, client.client_secret);
     if (!secretMatch) {
       return res.status(401).json({
@@ -38,7 +38,7 @@ router.post('/token', validateTokenRequest, async (req, res, next) => {
       });
     }
 
-    // Handle different grant types
+    
     switch (grant_type) {
       case 'client_credentials':
         return await handleClientCredentials(db, client, scope, res);
@@ -61,13 +61,13 @@ router.post('/token', validateTokenRequest, async (req, res, next) => {
   }
 });
 
-// OAuth 2.0 Token Introspection endpoint
+
 router.post('/introspect', validateIntrospectionRequest, async (req, res, next) => {
   try {
     const { token, token_type_hint } = req.body;
     const db = getDatabase();
 
-    // Find the token in database
+    
     const tokenRecord = await db.get(
       'SELECT * FROM oauth_tokens WHERE access_token = ?',
       [token]
@@ -79,7 +79,7 @@ router.post('/introspect', validateIntrospectionRequest, async (req, res, next) 
       });
     }
 
-    // Check if token is expired
+    
     const now = new Date();
     const expiresAt = new Date(tokenRecord.expires_at);
     
@@ -89,7 +89,7 @@ router.post('/introspect', validateIntrospectionRequest, async (req, res, next) 
       });
     }
 
-    // Get client and user information
+    
     const client = await db.get(
       'SELECT * FROM oauth_clients WHERE id = ?',
       [tokenRecord.client_id]
@@ -100,7 +100,7 @@ router.post('/introspect', validateIntrospectionRequest, async (req, res, next) 
       [tokenRecord.user_id]
     );
 
-    // Return token introspection response
+    
     const introspection = {
       active: true,
       scope: tokenRecord.scope,
@@ -120,12 +120,12 @@ router.post('/introspect', validateIntrospectionRequest, async (req, res, next) 
   }
 });
 
-// JWK Key endpoint
+
 router.get('/key', async (req, res, next) => {
   try {
     const db = getDatabase();
     
-    // Get active JWK keys
+    
     const keys = await db.all(
       'SELECT key_id, key_type, use_type, algorithm, public_key FROM jwk_keys WHERE is_active = 1 AND (expires_at IS NULL OR expires_at > datetime("now"))'
     );
@@ -148,17 +148,17 @@ router.get('/key', async (req, res, next) => {
   }
 });
 
-// Client registration endpoint
+
 router.post('/register', async (req, res, next) => {
   try {
     const { name, redirect_uris, grant_types, scope } = req.body;
     const db = getDatabase();
 
-    // Generate client credentials
+    
     const client_id = `rsl_${uuidv4().replace(/-/g, '')}`;
     const client_secret = await bcrypt.hash(uuidv4(), 10);
 
-    // Insert new client
+    
     const clientId = uuidv4();
     await db.run(
       `INSERT INTO oauth_clients (id, client_id, client_secret, name, redirect_uris, grant_types, scope)
@@ -166,7 +166,7 @@ router.post('/register', async (req, res, next) => {
       [clientId, client_id, client_secret, name, redirect_uris.join(','), grant_types.join(','), scope]
     );
 
-    // Log client registration
+    
     logger.info('New OAuth client registered', {
       client_id,
       name,
@@ -187,13 +187,13 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
-// Helper functions
-async function handleClientCredentials(db, client, scope, res) {
-  // Generate access token
-  const access_token = `rsl_${uuidv4().replace(/-/g, '')}`;
-  const expires_at = new Date(Date.now() + 3600000); // 1 hour
 
-  // Store token
+async function handleClientCredentials(db, client, scope, res) {
+  
+  const access_token = `rsl_${uuidv4().replace(/-/g, '')}`;
+  const expires_at = new Date(Date.now() + 3600000); 
+
+  
   const tokenId = uuidv4();
   await db.run(
     `INSERT INTO oauth_tokens (id, access_token, client_id, user_id, scope, expires_at)
@@ -210,13 +210,13 @@ async function handleClientCredentials(db, client, scope, res) {
 }
 
 async function handleAuthorizationCode(db, client, code, redirect_uri, scope, res) {
-  // In a real implementation, you would validate the authorization code
-  // For now, we'll create a token for demonstration
+  
+  
   const access_token = `rsl_${uuidv4().replace(/-/g, '')}`;
   const refresh_token = `rsl_refresh_${uuidv4().replace(/-/g, '')}`;
-  const expires_at = new Date(Date.now() + 3600000); // 1 hour
+  const expires_at = new Date(Date.now() + 3600000); 
 
-  // Store token (in real implementation, you'd get user_id from the authorization code)
+  
   const tokenId = uuidv4();
   await db.run(
     `INSERT INTO oauth_tokens (id, access_token, refresh_token, client_id, user_id, scope, expires_at)
@@ -234,7 +234,7 @@ async function handleAuthorizationCode(db, client, code, redirect_uri, scope, re
 }
 
 async function handleRSLGrant(db, client, body, res) {
-  // Custom RSL grant type for license-specific tokens
+  
   const { license_id, user_type, country_code } = body;
   
   if (!license_id) {
@@ -244,7 +244,7 @@ async function handleRSLGrant(db, client, body, res) {
     });
   }
 
-  // Verify license exists and is active
+  
   const license = await db.get(
     'SELECT * FROM rsl_licenses WHERE license_id = ? AND is_active = 1',
     [license_id]
@@ -257,11 +257,11 @@ async function handleRSLGrant(db, client, body, res) {
     });
   }
 
-  // Generate RSL-specific token
+  
   const access_token = `rsl_${uuidv4().replace(/-/g, '')}`;
-  const expires_at = new Date(Date.now() + 3600000); // 1 hour
+  const expires_at = new Date(Date.now() + 3600000); 
 
-  // Store token with license information
+  
   const tokenId = uuidv4();
   await db.run(
     `INSERT INTO oauth_tokens (id, access_token, client_id, user_id, scope, expires_at)
