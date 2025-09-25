@@ -232,17 +232,6 @@ const TrinityGraph: React.FC<TrinityGraphProps> = ({ onBack }) => {
                 </Layout>
             </main>
 
-            {/* Footer */}
-            <footer className="w-full max-w-7xl mx-auto px-10 py-6">
-                <div className="flex justify-between items-center text-sm" style={{ color: '#9CA3AF' }}>
-                    <div>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                    <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#9CA3AF' }}></div>
-                        <span>Inkwell</span>
-                    </div>
-                    <div>Confidential</div>
-                </div>
-            </footer>
         </div>
     );
 };

@@ -65,7 +65,7 @@ const Step2_Creativity: React.FC<Step2CreativityProps> = ({
                 ))}
             </div>
             <div className="text-center mt-8">
-                <button onClick={handleNext} className="bg-brand-primary text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-600 transition-colors duration-300 text-lg">
+                <button onClick={handleNext} className="bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-blue-700 transition-colors duration-300 text-lg">
                     Analyze Cultural Trends →
                 </button>
             </div>

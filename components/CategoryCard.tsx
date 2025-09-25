@@ -85,7 +85,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
                         />
                         <button
                             onClick={handleAddItemClick}
-                            className="px-3 py-1 text-sm font-semibold text-white bg-brand-primary rounded-md hover:bg-blue-600 transition-colors"
+                            className="px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
                         >
                             Add
                         </button>
