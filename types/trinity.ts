@@ -6,6 +6,8 @@ export enum AppStep {
   CREATIVITY_CATEGORY_SELECTION,
   CREATIVITY_RESULT,
   SYNCHRONICITY_RESULT,
+  CAMPAIGN_SELECTION,
+  CAMPAIGN_RESULT,
 }
 
 export interface IdentityCapsule {
@@ -46,4 +48,54 @@ export interface SynchronicityResult {
   sources: GroundingChunk[];
   score: number;
   rationale: string;
+}
+
+export interface Campaign {
+  id: string;
+  creative_idea: string;
+  campaign_name: string;
+  campaign_tagline: string;
+  campaign_type: 'social' | 'influencer' | 'experiential' | 'digital' | 'hybrid' | 'content' | 'guerrilla';
+  platforms: string[];
+  target_audience: {
+    primary: string;
+    secondary: string[];
+    demographics: string[];
+    psychographics: string[];
+  };
+  key_messages: string[];
+  activation_timeline: {
+    phase: string;
+    duration: string;
+    activities: string[];
+    milestones: string[];
+  }[];
+  budget_tier: 'micro' | 'small' | 'medium' | 'large' | 'enterprise';
+  estimated_budget_range: string;
+  kpis: {
+    metric: string;
+    target: string;
+    measurement: string;
+  }[];
+  distribution_strategy: string[];
+  content_pillars: string[];
+  creative_assets_needed: string[];
+  partnership_opportunities: string[];
+  success_metrics: string[];
+  risk_mitigation: string[];
+  amplification_tactics: string[];
+}
+
+export interface CampaignGenerationResult {
+  campaign: Campaign;
+  executionPlan: CampaignExecutionPlan;
+  deploymentUrl?: string;
+}
+
+export interface CampaignExecutionPlan {
+  week1: string[];
+  week2_4: string[];
+  month2: string[];
+  month3: string[];
+  ongoing: string[];
 }

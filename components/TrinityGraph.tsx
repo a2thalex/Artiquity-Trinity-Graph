@@ -1,12 +1,13 @@
 import React, { useState, useCallback } from 'react';
-import type { IdentityCapsule, CreativeIdeas, SynchronicityResult, GroundingChunk } from '../types/trinity';
+import type { IdentityCapsule, CreativeIdeas, SynchronicityResult, GroundingChunk, CampaignGenerationResult } from '../types/trinity';
 import { AppStep } from '../types/trinity';
 import Layout from './Layout';
 import Step1_Identity from './Step1_Identity';
 import Step2_CategorySelection from './Step2_CategorySelection';
 import Step2_Creativity from './Step2_Creativity';
 import Step3_Synchronicity from './Step3_Synchronicity';
-import { generateIdentityCapsule, generateCreativeIdeas, analyzeTrendsForIdea } from '../services/geminiService';
+import Step4_Campaign from './Step4_Campaign';
+import { generateIdentityCapsule, generateCreativeIdeas, analyzeTrendsForIdea, generateCampaign, generateCampaignVariations, deployCampaign } from '../services/geminiService';
 import Loader from './Loader';
 
 interface TrinityGraphProps {
@@ -29,6 +30,9 @@ const TrinityGraph: React.FC<TrinityGraphProps> = ({ onBack }) => {
     const [selectedCreativeIdeas, setSelectedCreativeIdeas] = useState<Record<string, string[]>>({});
 
     const [synchronicityResults, setSynchronicityResults] = useState<SynchronicityResult[] | null>(null);
+    
+    const [campaignResults, setCampaignResults] = useState<CampaignGenerationResult[] | null>(null);
+    const [selectedCampaign, setSelectedCampaign] = useState<CampaignGenerationResult | null>(null);
 
     const handleStart = () => setStep(AppStep.IDENTITY_INPUT);
 
@@ -120,6 +124,62 @@ const TrinityGraph: React.FC<TrinityGraphProps> = ({ onBack }) => {
         }
     }, [selectedCreativeIdeas, brandName]);
 
+    const handleProceedToCampaign = useCallback(() => {
+        setStep(AppStep.CAMPAIGN_SELECTION);
+    }, []);
+
+    const handleGenerateCampaign = useCallback(async (results?: SynchronicityResult[]) => {
+        setError(null);
+        setIsLoading(true);
+        
+        const resultsToUse = results || (synchronicityResults ? [synchronicityResults[0]] : []);
+        const identityElements = Object.values(selectedIdentityItems).flat();
+        
+        if (resultsToUse.length === 1) {
+            setLoadingMessage('Generating campaign strategy...');
+        } else {
+            setLoadingMessage(`Generating ${resultsToUse.length} campaign variations...`);
+        }
+        
+        setStep(AppStep.GENERATING);
+
+        try {
+            const campaigns = await generateCampaignVariations(
+                brandName,
+                resultsToUse,
+                identityElements,
+                resultsToUse.length
+            );
+            
+            setCampaignResults(campaigns);
+            setSelectedCampaign(campaigns[0]);
+            setStep(AppStep.CAMPAIGN_RESULT);
+        } catch (e) {
+            console.error(e);
+            setError("Failed to generate campaign. Please try again.");
+            setStep(AppStep.CAMPAIGN_SELECTION);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [brandName, synchronicityResults, selectedIdentityItems]);
+
+    const handleDeployCampaign = useCallback(async () => {
+        if (!selectedCampaign) {
+            setError("No campaign selected for deployment.");
+            return null;
+        }
+        
+        try {
+            const result = await deployCampaign(selectedCampaign.campaign, brandName);
+            console.log('Deployment result:', result);
+            return result; // Return the deployment data
+        } catch (e) {
+            console.error(e);
+            setError("Failed to deploy campaign. Please try again.");
+            return null;
+        }
+    }, [selectedCampaign, brandName]);
+
     const handleRestart = () => {
         setStep(AppStep.LANDING);
         setBrandName('');
@@ -131,6 +191,8 @@ const TrinityGraph: React.FC<TrinityGraphProps> = ({ onBack }) => {
         setCreativeIdeas(null);
         setSelectedCreativeIdeas({});
         setSynchronicityResults(null);
+        setCampaignResults(null);
+        setSelectedCampaign(null);
     };
 
     const renderContent = () => {
@@ -193,6 +255,24 @@ const TrinityGraph: React.FC<TrinityGraphProps> = ({ onBack }) => {
                         brandName={brandName}
                         results={synchronicityResults}
                         handleRestart={handleRestart}
+                        handleNext={handleProceedToCampaign}
+                    />
+                );
+            case AppStep.CAMPAIGN_SELECTION:
+            case AppStep.CAMPAIGN_RESULT:
+                return (
+                    <Step4_Campaign
+                        brandName={brandName}
+                        synchronicityResults={synchronicityResults}
+                        campaignResults={campaignResults}
+                        selectedCampaign={selectedCampaign}
+                        setSelectedCampaign={setSelectedCampaign}
+                        handleGenerateCampaign={handleGenerateCampaign}
+                        handleDeployCampaign={handleDeployCampaign}
+                        handleRestart={handleRestart}
+                        error={error}
+                        setError={setError}
+                        isSelectionMode={step === AppStep.CAMPAIGN_SELECTION}
                     />
                 );
             default:

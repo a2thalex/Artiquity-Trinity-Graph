@@ -1,5 +1,5 @@
 // Secure API calls to server-side Gemini proxy
-import type { IdentityCapsule, CreativeIdeas, SynchronicityAnalysis, GroundingChunk, SynchronicityResult } from '../types/trinity';
+import type { IdentityCapsule, CreativeIdeas, SynchronicityAnalysis, GroundingChunk, SynchronicityResult, Campaign, CampaignGenerationResult, CampaignExecutionPlan } from '../types/trinity';
 
 // Base URL for API calls - will be handled by Vercel routing
 const API_BASE = '/api';
@@ -200,5 +200,122 @@ export const generateVisionBoard = async (brandName: string, idea: string): Prom
     } catch (error) {
         console.error("Error generating vision board:", error);
         throw new Error("Failed to generate vision board. Please try again.");
+    }
+};
+
+/**
+ * Generates a comprehensive campaign from a creative idea and synchronicity analysis.
+ * @param brandName The name of the brand.
+ * @param synchronicityResult The top synchronicity result with trend analysis.
+ * @param identityElements Selected brand identity elements for consistency.
+ * @returns A promise that resolves to a CampaignGenerationResult object.
+ */
+export const generateCampaign = async (
+    brandName: string, 
+    synchronicityResult: SynchronicityResult,
+    identityElements: string[]
+): Promise<CampaignGenerationResult> => {
+    try {
+        const response = await fetch(`${API_BASE}/generate-campaign`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                brandName,
+                synchronicityResult,
+                identityElements,
+                generationType: 'campaign'
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate campaign');
+        }
+
+        const result = await response.json();
+        return result as CampaignGenerationResult;
+
+    } catch (error) {
+        console.error("Error generating campaign:", error);
+        throw new Error("Failed to generate campaign. Please try again.");
+    }
+};
+
+/**
+ * Deploys a campaign to the promote.fun platform or similar campaign management system.
+ * @param campaign The campaign object to deploy.
+ * @param brandName The brand name.
+ * @returns A promise that resolves to deployment details.
+ */
+export const deployCampaign = async (
+    campaign: Campaign,
+    brandName: string
+): Promise<{ success: boolean; deploymentUrl: string; status: string; urls?: any; nextSteps?: string[]; estimatedMetrics?: any }> => {
+    try {
+        const response = await fetch(`${API_BASE}/deploy-campaign`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                campaign,
+                brandName,
+                action: 'deploy'
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to deploy campaign');
+        }
+
+        const result = await response.json();
+        
+        return {
+            success: result.success,
+            deploymentUrl: result.urls?.campaign || `https://promote.fun/campaigns/${campaign.id}`,
+            status: result.status,
+            urls: result.urls,
+            nextSteps: result.nextSteps,
+            estimatedMetrics: result.estimatedMetrics
+        };
+
+    } catch (error) {
+        console.error("Error deploying campaign:", error);
+        throw new Error("Failed to deploy campaign. Please try again.");
+    }
+};
+
+/**
+ * Generates multiple campaign variations for A/B testing.
+ * @param brandName The brand name.
+ * @param synchronicityResults Multiple synchronicity results to generate campaigns from.
+ * @param identityElements Selected brand identity elements.
+ * @param count Number of variations to generate (max 3).
+ * @returns A promise that resolves to an array of CampaignGenerationResult objects.
+ */
+export const generateCampaignVariations = async (
+    brandName: string,
+    synchronicityResults: SynchronicityResult[],
+    identityElements: string[],
+    count: number = 3
+): Promise<CampaignGenerationResult[]> => {
+    try {
+        // Take top N results based on count
+        const topResults = synchronicityResults.slice(0, Math.min(count, 3));
+        
+        // Generate campaigns in parallel for efficiency
+        const campaignPromises = topResults.map(result => 
+            generateCampaign(brandName, result, identityElements)
+        );
+        
+        const campaigns = await Promise.all(campaignPromises);
+        return campaigns;
+        
+    } catch (error) {
+        console.error("Error generating campaign variations:", error);
+        throw new Error("Failed to generate campaign variations. Please try again.");
     }
 };

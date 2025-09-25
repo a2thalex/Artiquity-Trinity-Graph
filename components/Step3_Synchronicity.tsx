@@ -6,6 +6,7 @@ interface Step3SynchronicityProps {
     brandName: string;
     results: SynchronicityResult[] | null;
     handleRestart: () => void;
+    handleNext: () => void;
 }
 
 const StepHeader: React.FC<{ title: string; description: string }> = ({ title, description }) => (
@@ -116,7 +117,7 @@ const StaticCategoryCard: React.FC<{title: string, items: string[]}> = ({ title,
     )
 }
 
-const Step3_Synchronicity: React.FC<Step3SynchronicityProps> = ({ brandName, results, handleRestart }) => {
+const Step3_Synchronicity: React.FC<Step3SynchronicityProps> = ({ brandName, results, handleRestart, handleNext }) => {
     const [visionBoards, setVisionBoards] = useState<Record<string, string | null>>({});
     const [loadingVisionBoard, setLoadingVisionBoard] = useState<string | null>(null);
     const [visionBoardError, setVisionBoardError] = useState<string | null>(null);
@@ -241,9 +242,12 @@ const Step3_Synchronicity: React.FC<Step3SynchronicityProps> = ({ brandName, res
                 ))}
             </div>
 
-            <div className="text-center mt-12">
-                <button onClick={handleRestart} className="bg-brand-title text-brand-text hover:bg-white transition-colors duration-300 font-bold py-3 px-8 rounded-full shadow-lg text-lg">
+            <div className="flex justify-center gap-4 mt-12">
+                <button onClick={handleRestart} className="bg-gray-500 text-white hover:bg-gray-600 transition-colors duration-300 font-bold py-3 px-8 rounded-full shadow-lg text-lg">
                     Start a New Analysis
+                </button>
+                <button onClick={handleNext} className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition-colors duration-300 font-bold py-3 px-8 rounded-full shadow-lg text-lg">
+                    Generate Campaign →
                 </button>
             </div>
         </div>
