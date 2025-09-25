@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </main>
             <footer className="w-full text-xs text-gray-500 mt-8">
                 <div className="max-w-7xl mx-auto flex justify-between items-center">
-                    <span>Tuesday, August 20, 2024</span>
+                    <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
                     <InkwellLogo />
                     <span>Confidential</span>
                 </div>

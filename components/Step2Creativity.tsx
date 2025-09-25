@@ -140,7 +140,7 @@ const Step2Creativity: React.FC<Step2CreativityProps> = ({ artistName, selectedI
                            <button onClick={handleGenerate} disabled={isLoading} className="w-full px-6 py-3 bg-white/70 hover:bg-white/90 text-stone-800 font-bold rounded-xl transition-all duration-300 disabled:opacity-50">
                              {isLoading ? 'Generating...' : 'Re-generate'}
                            </button>
-                           <button onClick={handleProceed} className="w-full px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl transition-all duration-300">
+                           <button onClick={handleProceed} className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all duration-300">
                              Analyze Synchronicity
                            </button>
                          </div>
