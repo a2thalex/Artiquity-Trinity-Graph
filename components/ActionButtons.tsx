@@ -25,7 +25,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ onBack, onNext, ne
                 type="button"
                 onClick={onNext}
                 disabled={isNextDisabled || isLoading}
-                className="rounded-md bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="rounded-md px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center" style={{ backgroundColor: '#6B7280', focusVisibleOutlineColor: '#6B7280' }}
             >
                 {isLoading && (
                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

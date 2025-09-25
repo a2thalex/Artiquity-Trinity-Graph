@@ -1,3 +1,8 @@
+/* Ensure consistent background color across all apps */
+.app-background {
+  background-color: #E8F0FE !important;
+}
+
 @keyframes float-vertical {
   0% { transform: translateY(0); }
   100% { transform: translateY(-50%); }

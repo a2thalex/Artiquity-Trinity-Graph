@@ -201,7 +201,7 @@ const TrinityGraph: React.FC<TrinityGraphProps> = ({ onBack }) => {
     };
 
     return (
-        <div className="min-h-screen" style={{ backgroundColor: '#E8F0FE' }}>
+        <div className="min-h-screen app-background">
             {/* Header with back button */}
             <header className="w-full py-4">
                 <div className="max-w-7xl mx-auto px-10">

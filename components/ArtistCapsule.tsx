@@ -76,7 +76,7 @@ const ArtistCapsule: React.FC<ArtistCapsuleProps> = ({ onBack }) => {
   });
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E8F0FE' }}>
+    <div className="min-h-screen app-background">
       {/* Header with back button */}
       <header className="w-full py-4">
         <div className="max-w-7xl mx-auto px-10">
@@ -92,7 +92,7 @@ const ArtistCapsule: React.FC<ArtistCapsuleProps> = ({ onBack }) => {
             </button>
             <div className="text-center">
               <h1 className="text-2xl font-bold" style={{ color: '#000000' }}>
-                Artist Capsule
+                Authenticity
               </h1>
             </div>
             <div className="w-32"></div> {/* Spacer for centering */}

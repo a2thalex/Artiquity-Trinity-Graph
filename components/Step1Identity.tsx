@@ -78,7 +78,7 @@ const Step1Identity: React.FC<Step1IdentityProps> = ({ onComplete }) => {
             />
             <button
               type="submit"
-              className="px-8 py-3 bg-white/70 hover:bg-white/90 text-stone-800 font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90" style={{ backgroundColor: '#6B7280' }}
               disabled={isLoading || !artistName.trim()}
             >
               {isLoading ? 'Generating...' : 'Generate'}
@@ -119,7 +119,7 @@ const Step1Identity: React.FC<Step1IdentityProps> = ({ onComplete }) => {
           <div className="text-center mt-8">
             <button
               onClick={handleProceed}
-              className="px-10 py-4 bg-white/80 hover:bg-white text-stone-800 font-bold rounded-xl transition-all duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-10 py-4 text-white font-bold rounded-xl transition-all duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90" style={{ backgroundColor: '#6B7280' }}
               disabled={selectedElements.size === 0}
             >
               Proceed to Creativity ({selectedElements.size} selected)

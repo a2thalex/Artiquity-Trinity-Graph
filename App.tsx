@@ -5,12 +5,13 @@ import { HomeScreen } from './components/HomeScreen';
 import TrinityGraph from './components/TrinityGraph';
 import ArtistCapsule from './components/ArtistCapsule';
 import ArtiquityLanding from './components/ArtiquityLanding';
+import DataApp from './components/DataApp';
 
 
 function App() {
-  const [currentView, setCurrentView] = useState<'landing' | 'home' | 'security' | 'trinity' | 'artistCapsule'>('landing');
+  const [currentView, setCurrentView] = useState<'landing' | 'home' | 'security' | 'trinity' | 'artistCapsule' | 'data'>('landing');
 
-  const handleNavigate = (newView: 'landing' | 'home' | 'security' | 'trinity' | 'artistCapsule') => {
+  const handleNavigate = (newView: 'landing' | 'home' | 'security' | 'trinity' | 'artistCapsule' | 'data') => {
     setCurrentView(newView);
   };
 
@@ -20,7 +21,7 @@ function App() {
 
   if (currentView === 'security') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-start font-sans" style={{ backgroundColor: '#E8F0FE' }}>
+          <div className="min-h-screen flex flex-col items-center justify-start font-sans app-background">
         <header className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex items-center justify-between">
                 <button
@@ -40,9 +41,9 @@ function App() {
                 <div className="w-32"></div> {/* Spacer for centering */}
             </div>
         </header>
-        <main className="w-full flex-grow flex items-center justify-center p-4">
-            <LandingPage />
-        </main>
+            <main className="w-full flex-grow flex items-center justify-center p-4">
+                <LandingPage onBack={() => handleNavigate('home')} />
+            </main>
         <footer className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center text-sm" style={{ color: '#9CA3AF' }}>
             <div>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
@@ -65,7 +66,11 @@ function App() {
     return <ArtistCapsule onBack={() => handleNavigate('home')} />;
   }
 
-  return <HomeScreen onNavigateToSecurity={() => handleNavigate('security')} onNavigateToTrinity={() => handleNavigate('trinity')} onNavigateToArtistCapsule={() => handleNavigate('artistCapsule')} />;
+  if (currentView === 'data') {
+    return <DataApp onBack={() => handleNavigate('home')} />;
+  }
+
+  return <HomeScreen onNavigateToSecurity={() => handleNavigate('security')} onNavigateToTrinity={() => handleNavigate('trinity')} onNavigateToArtistCapsule={() => handleNavigate('artistCapsule')} onNavigateToData={() => handleNavigate('data')} />;
 }
 
 export default App;

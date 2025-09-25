@@ -17,7 +17,11 @@ const initialLicenseOptions: LicenseOptions = {
 
 type Step = 'upload' | 'configure' | 'review' | 'complete';
 
-export const LandingPage: React.FC = () => {
+interface LandingPageProps {
+  onBack?: () => void;
+}
+
+export const LandingPage: React.FC<LandingPageProps> = ({ onBack }) => {
     const [currentStep, setCurrentStep] = useState<Step>('upload');
     const [rslFile, setRslFile] = useState<RSLFile | null>(null);
     const [licenseOptions, setLicenseOptions] = useState<LicenseOptions>(initialLicenseOptions);
@@ -131,6 +135,19 @@ export const LandingPage: React.FC = () => {
 
     return (
         <div className="w-full max-w-4xl mx-auto">
+            {onBack && (
+                <div className="mb-6">
+                    <button
+                        onClick={onBack}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-white/50 transition-all duration-200"
+                    >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        <span className="font-medium">Back to Home</span>
+                    </button>
+                </div>
+            )}
             <div className="mb-8">
                 <div className="flex items-center justify-between">
                     {steps.map((step, index) => {
@@ -442,7 +459,7 @@ const ConfigureStep: React.FC<{
                 <button
                     onClick={onNext}
                     disabled={!licenseOptions.provenanceInfo.trim()}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 text-white rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" style={{ backgroundColor: '#6B7280' }}
                 >
                     Next: Review
                 </button>
@@ -498,7 +515,7 @@ const ReviewStep: React.FC<{
                 <button
                     onClick={onGenerate}
                     disabled={isLoading}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2 text-white rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed" style={{ backgroundColor: '#6B7280' }}
                 >
                     {isLoading ? 'Generating...' : 'Generate RSL Certificate'}
                 </button>
@@ -553,7 +570,7 @@ const CompleteStep: React.FC<{
                 </button>
                 <button
                     onClick={downloadEmbeddedFile}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="px-6 py-2 text-white rounded-md hover:opacity-90" style={{ backgroundColor: '#6B7280' }}
                 >
                     Download Protected File
                 </button>

@@ -78,7 +78,7 @@ const InteractiveCategory: React.FC<{
                                     <button
                                         onClick={() => handleGenerateSamples(item)}
                                         disabled={isLoading}
-                                        className="text-xs bg-blue-600 text-white px-2 py-1 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-wait flex-shrink-0 ml-2"
+                                        className="text-xs text-white px-2 py-1 rounded-md hover:opacity-90 disabled:bg-gray-400 disabled:cursor-wait flex-shrink-0 ml-2" style={{ backgroundColor: '#6B7280' }}
                                     >
                                         {isLoading ? 'Generating...' : 'Generate Samples'}
                                     </button>

@@ -114,7 +114,7 @@ const Step2Creativity: React.FC<Step2CreativityProps> = ({ artistName, selectedI
                 ))}
               </div>
               <div className="mt-6 text-center">
-                 <button onClick={handleGenerate} disabled={isGenerateDisabled || isLoading} className="px-10 py-4 bg-white/80 hover:bg-white text-stone-800 font-bold rounded-xl transition-all duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                 <button onClick={handleGenerate} disabled={isGenerateDisabled || isLoading} className="px-10 py-4 text-white font-bold rounded-xl transition-all duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90" style={{ backgroundColor: '#6B7280' }}>
                   {isLoading ? 'Generating...' : 'Generate Image'}
                 </button>
               </div>
@@ -137,10 +137,10 @@ const Step2Creativity: React.FC<Step2CreativityProps> = ({ artistName, selectedI
                         <h3 className="font-bold text-xl">Generated Vision</h3>
                         <p className="text-stone-700 leading-relaxed text-sm italic">{creativeOutput.prompt}</p>
                          <div className="flex gap-4 pt-4">
-                           <button onClick={handleGenerate} disabled={isLoading} className="w-full px-6 py-3 bg-white/70 hover:bg-white/90 text-stone-800 font-bold rounded-xl transition-all duration-300 disabled:opacity-50">
+                           <button onClick={handleGenerate} disabled={isLoading} className="w-full px-6 py-3 text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 hover:opacity-90" style={{ backgroundColor: '#6B7280' }}>
                              {isLoading ? 'Generating...' : 'Re-generate'}
                            </button>
-                           <button onClick={handleProceed} className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all duration-300">
+                           <button onClick={handleProceed} className="w-full px-6 py-3 hover:opacity-90 text-white font-bold rounded-xl transition-all duration-300" style={{ backgroundColor: '#6B7280' }}>
                              Analyze Synchronicity
                            </button>
                          </div>
