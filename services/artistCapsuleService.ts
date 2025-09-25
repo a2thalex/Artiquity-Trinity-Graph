@@ -1,40 +1,39 @@
-import { GoogleGenAI, Type } from "@google/genai";
 import type { IdentityCapsule, CreativeOutput, SynchronicityResult, WebSource } from '../types/artistCapsule';
 
-// Initialize GoogleGenAI with named apiKey parameter from environment variables
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY as string });
+// Base URL for API calls - will be handled by Vercel routing
+const API_BASE = '/api/gemini';
 
 const identityCapsuleSchema = {
-    type: Type.OBJECT,
+    type: "object",
     properties: {
         aestheticCodes: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
+            type: "array",
+            items: { type: "string" },
             description: "Visual styles, color palettes, recurring motifs."
         },
         tonalSignatures: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
+            type: "array",
+            items: { type: "string" },
             description: "Emotional tones, mood, atmosphere conveyed."
         },
         techniquesAndMediums: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
+            type: "array",
+            items: { type: "string" },
             description: "Artistic methods, materials, and processes used."
         },
         philosophyAndIntent: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
+            type: "array",
+            items: { type: "string" },
             description: "Core ideas, messages, and purpose behind the work."
         },
         constraintsAndBoundaries: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
+            type: "array",
+            items: { type: "string" },
             description: "Self-imposed rules, limitations, or frameworks."
         },
         signatureGesturesAndCodes: {
-            type: Type.ARRAY,
-            items: { type: Type.STRING },
+            type: "array",
+            items: { type: "string" },
             description: "Distinctive marks, symbols, or repeated actions."
         }
     },
@@ -42,20 +41,24 @@ const identityCapsuleSchema = {
 };
 
 export const generateIdentityCapsule = async (artistName: string): Promise<IdentityCapsule> => {
-    const prompt = `Analyze the artist '${artistName}' and define their enduring artistic DNA. Deconstruct their work to identify the core, recurring elements that make their creations unmistakably theirs. Populate the following categories with 3-5 distinct elements each: aesthetic codes, tonal signatures, techniques and mediums, philosophy and intent, constraints and boundaries, and signature gestures and codes.`;
-
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: identityCapsuleSchema,
+        const response = await fetch(`${API_BASE}/artist-identity-capsule`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             },
+            body: JSON.stringify({
+                artistName,
+            }),
         });
 
-        const jsonStr = response.text.trim();
-        const parsed = JSON.parse(jsonStr);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate identity capsule');
+        }
+
+        const result = await response.json();
+        const parsed = result;
         
         if (
           !parsed.aestheticCodes ||

@@ -1,37 +1,18 @@
 {
-  "version": 2,
-  "name": "rsl-security-platform",
-  "builds": [
+  "rewrites": [
+    // 1. Route all /api/* calls to our serverless function directory (API Proxy)
     {
-      "src": "server/index.js",
-      "use": "@vercel/node"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
+    // 2. Catch-all: For any other route, serve the main index.html file
+    //    This is CRITICAL for client-side routing (React Router, Vue Router, etc.)
+    //    so the router can load and handle the URL itself.
     {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
+      "source": "/(.*)",
+      "destination": "/dist/index.html"
     }
   ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/server/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
-    }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  },
-  "functions": {
-    "server/index.js": {
-      "maxDuration": 30
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",

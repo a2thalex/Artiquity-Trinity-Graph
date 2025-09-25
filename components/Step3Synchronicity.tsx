@@ -134,7 +134,7 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
             <p className="text-stone-600 mb-4">{error}</p>
             <button
               onClick={onRestart}
-              className="px-8 py-3 bg-white/70 hover:bg-white/90 text-stone-800 font-bold rounded-xl transition-all duration-300"
+              className="px-8 py-3 text-white font-bold rounded-xl transition-all duration-300 hover:opacity-90" style={{ backgroundColor: '#6B7280' }}
             >
               Start Over
             </button>
@@ -148,7 +148,7 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
              <p className="text-stone-600 mb-4">Could not load dashboard. Please try again.</p>
              <button
               onClick={onRestart}
-              className="px-8 py-3 bg-white/70 hover:bg-white/90 text-stone-800 font-bold rounded-xl transition-all duration-300"
+              className="px-8 py-3 text-white font-bold rounded-xl transition-all duration-300 hover:opacity-90" style={{ backgroundColor: '#6B7280' }}
             >
               Start Over
             </button>
@@ -256,7 +256,7 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
        <div className="text-center pt-4">
             <button
               onClick={onRestart}
-              className="px-10 py-4 bg-white/80 hover:bg-white text-stone-800 font-bold rounded-xl transition-all duration-300 text-lg"
+              className="px-10 py-4 text-white font-bold rounded-xl transition-all duration-300 text-lg hover:opacity-90" style={{ backgroundColor: '#6B7280' }}
             >
               Create Another
             </button>

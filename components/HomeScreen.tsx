@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 
-type Tab = 'security' | 'capsule' | 'branding';
+type Tab = 'security' | 'capsule' | 'branding' | 'data';
 
 interface HomeScreenProps {
   onNavigateToSecurity: () => void;
   onNavigateToTrinity: () => void;
   onNavigateToArtistCapsule: () => void;
+  onNavigateToData: () => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToSecurity, onNavigateToTrinity, onNavigateToArtistCapsule }) => {
+export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToSecurity, onNavigateToTrinity, onNavigateToArtistCapsule, onNavigateToData }) => {
   const [activeTab, setActiveTab] = useState<Tab>('security');
 
   const tabs = [
     { id: 'security' as Tab, label: 'Security', description: 'Content Protection & RSL Licensing' },
-    { id: 'capsule' as Tab, label: 'Artist Capsule', description: 'AI-Powered Artist Development' },
-    { id: 'branding' as Tab, label: 'Brand Capsule', description: 'Brand Intelligence & Creative Strategy' }
+    { id: 'capsule' as Tab, label: 'Authenticity', description: 'AI-Powered Artist Development' },
+    { id: 'branding' as Tab, label: 'Centricity', description: 'Brand Intelligence & Creative Strategy' },
+    { id: 'data' as Tab, label: 'Equivocity', description: 'Intelligent Data Marketplace' }
   ];
 
   const handleTabClick = (tabId: Tab) => {
@@ -22,7 +24,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToSecurity, on
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#E8F0FE' }}>
+    <div className="min-h-screen app-background">
       {/* Header */}
       <header className="w-full py-8">
         <div className="max-w-7xl mx-auto px-10">
@@ -100,7 +102,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToSecurity, on
               </div>
               
               <h2 className="text-5xl md:text-6xl font-extrabold leading-tight mb-8 tracking-tight" style={{ color: '#000000' }}>
-                Artist <span style={{ color: '#DC2626' }}>Capsule</span><br />
+                Artist <span style={{ color: '#DC2626' }}>Authenticity</span><br />
                 Trinity Graph
               </h2>
               
@@ -136,6 +138,32 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToSecurity, on
               
               <button 
                 onClick={onNavigateToTrinity}
+                className="inline-flex items-center gap-3 px-9 py-5 rounded-full text-lg font-semibold text-white transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl"
+                style={{ backgroundColor: '#6B7280' }}
+              >
+                <span>Begin</span>
+                <span>→</span>
+              </button>
+            </div>
+          )}
+
+          {activeTab === 'data' && (
+            <div className="text-center">
+              <div className="inline-flex items-center px-6 py-3 rounded-full text-lg mb-8" style={{ backgroundColor: 'rgba(107, 114, 128, 0.1)', border: '1px solid rgba(107, 114, 128, 0.2)', color: '#374151' }}>
+                🎯 AI-Powered Data Marketplace
+              </div>
+              
+              <h2 className="text-5xl md:text-6xl font-extrabold leading-tight mb-8 tracking-tight" style={{ color: '#000000' }}>
+                <span style={{ color: '#DC2626' }}>Equivocity</span><br />
+                Data Intelligence
+              </h2>
+              
+              <p className="text-xl mb-10 leading-relaxed max-w-3xl mx-auto" style={{ color: 'rgba(55, 65, 81, 0.8)' }}>
+                Find and license organized, high-quality data from artists for your AI company. Generate creative identity capsules, refine data profiles, and get comprehensive dataset previews with AI-powered insights.
+              </p>
+              
+              <button 
+                onClick={onNavigateToData}
                 className="inline-flex items-center gap-3 px-9 py-5 rounded-full text-lg font-semibold text-white transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-xl"
                 style={{ backgroundColor: '#6B7280' }}
               >
