@@ -1,9 +1,27 @@
 import { RSLFile, LicenseOptions } from '../types';
-import { embedRSLMetadata, createRSLMetadata } from './metadataEmbedder';
+import { embedRSLMetadata, createRSLMetadata, extractRSLMetadata } from './metadataEmbedder';
 
 export async function generateRSL(rslFile: RSLFile, options: LicenseOptions): Promise<File> {
     try {
+        console.log(`Generating RSL for file: ${rslFile.file.name}`);
+        
+        // Embed RSL metadata into the file
         const embeddedFile = await embedRSLMetadata(rslFile, options);
+        console.log(`RSL metadata embedding completed for: ${embeddedFile.name}`);
+        
+        // Verify that metadata was successfully embedded (optional verification step)
+        try {
+            const extractedMetadata = await extractRSLMetadata(embeddedFile);
+            if (extractedMetadata) {
+                console.log('✅ RSL metadata verification successful - metadata found in embedded file');
+            } else {
+                console.log('⚠️ RSL metadata verification failed - no metadata found in embedded file');
+                console.log('This may be normal for sidecar file formats');
+            }
+        } catch (verificationError) {
+            console.log('⚠️ RSL metadata verification skipped due to error:', verificationError);
+        }
+        
         return embeddedFile;
     } catch (error) {
         console.error('Error embedding RSL metadata:', error);

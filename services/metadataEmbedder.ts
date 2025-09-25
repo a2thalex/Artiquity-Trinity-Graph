@@ -40,20 +40,34 @@ export function createRSLMetadata(options: LicenseOptions): RSLMetadata {
 }
 
 export async function embedRSLMetadata(rslFile: RSLFile, options: LicenseOptions): Promise<File> {
+    console.log(`Starting RSL metadata embedding for: ${rslFile.file.name}`);
+    console.log(`File type: ${rslFile.file.type}, Size: ${rslFile.file.size} bytes`);
+    
     const metadata = createRSLMetadata(options);
     
     const fileType = rslFile.file.type.toLowerCase();
-    const fileName = rslFile.file.name;
+    const fileName = rslFile.file.name.toLowerCase();
     
-    if (fileType.startsWith('image/')) {
-        return await embedImageMetadata(rslFile.file, metadata);
-    } else if (fileType.startsWith('video/')) {
-        return await embedVideoMetadata(rslFile.file, metadata);
-    } else if (fileType.startsWith('audio/')) {
-        return await embedAudioMetadata(rslFile.file, metadata);
-    } else if (fileType === 'application/pdf') {
-        return await embedPDFMetadata(rslFile.file, metadata);
-    } else {
+    try {
+        if (fileType.startsWith('image/')) {
+            console.log('Processing as image file');
+            return await embedImageMetadata(rslFile.file, metadata);
+        } else if (fileType.startsWith('video/') || fileName.endsWith('.mp4') || fileName.endsWith('.m4v') || fileName.endsWith('.mov') || fileName.endsWith('.avi')) {
+            console.log('Processing as video file');
+            return await embedVideoMetadata(rslFile.file, metadata);
+        } else if (fileType.startsWith('audio/') || fileName.endsWith('.mp3') || fileName.endsWith('.wav')) {
+            console.log('Processing as audio file');
+            return await embedAudioMetadata(rslFile.file, metadata);
+        } else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
+            console.log('Processing as PDF file');
+            return await embedPDFMetadata(rslFile.file, metadata);
+        } else {
+            console.log(`Unsupported file type: ${fileType}, creating sidecar file`);
+            return await createSidecarFile(rslFile.file, metadata);
+        }
+    } catch (error) {
+        console.error('Error in embedRSLMetadata:', error);
+        console.log('Falling back to sidecar file creation');
         return await createSidecarFile(rslFile.file, metadata);
     }
 }
@@ -183,14 +197,28 @@ async function embedTIFFMetadata(file: File, metadata: RSLMetadata): Promise<Fil
 
 async function embedVideoMetadata(file: File, metadata: RSLMetadata): Promise<File> {
     const fileType = file.type.toLowerCase();
+    const fileName = file.name.toLowerCase();
     
-    if (fileType === 'video/mp4') {
+    console.log(`Processing video file: ${file.name} (${fileType})`);
+    
+    // Check for MP4 variants
+    if (fileType === 'video/mp4' || 
+        fileType === 'video/mp4v-es' ||
+        fileName.endsWith('.mp4') ||
+        fileName.endsWith('.m4v')) {
+        console.log('Detected MP4 format, attempting direct metadata embedding');
         return await embedMP4Metadata(file, metadata);
-    } else if (fileType === 'video/quicktime' || fileType === 'video/x-msvideo') {
-        
+    } else if (fileType === 'video/quicktime' || 
+               fileType === 'video/x-msvideo' ||
+               fileName.endsWith('.mov') ||
+               fileName.endsWith('.avi')) {
+        console.log('Detected QuickTime/AVI format, using sidecar file');
+        return await createSidecarFile(file, metadata);
+    } else if (fileType.startsWith('video/')) {
+        console.log(`Unsupported video format: ${fileType}, using sidecar file`);
         return await createSidecarFile(file, metadata);
     } else {
-        
+        console.log(`Non-video file detected: ${fileType}, using sidecar file`);
         return await createSidecarFile(file, metadata);
     }
 }
@@ -262,25 +290,29 @@ async function embedWAVMetadata(file: File, metadata: RSLMetadata): Promise<File
 
 async function embedMP4Metadata(file: File, metadata: RSLMetadata): Promise<File> {
     try {
+        console.log(`Starting MP4 metadata embedding for ${file.name}`);
         
+        // Import MP4Box library
         const MP4Box = await import('mp4box');
         
         const arrayBuffer = await file.arrayBuffer();
+        console.log(`Loaded MP4 file buffer: ${arrayBuffer.byteLength} bytes`);
         
-        
+        // Create MP4Box file instance
         const mp4boxfile = MP4Box.createFile();
         
-        
+        // Convert to Uint8Array for MP4Box
         const uint8Array = new Uint8Array(arrayBuffer);
-        
-        
         uint8Array.buffer.fileStart = 0;
+        
+        // Parse the MP4 file
         mp4boxfile.appendBuffer(uint8Array);
         
+        // Create comprehensive RSL metadata
+        const rslData = JSON.stringify(metadata, null, 2);
+        console.log(`RSL metadata size: ${rslData.length} characters`);
         
-        const rslData = JSON.stringify(metadata);
-        
-        
+        // Create RSL metadata atom structure
         const rslMetadataAtom = {
             type: 'udta',
             children: [
@@ -298,6 +330,10 @@ async function embedMP4Metadata(file: File, metadata: RSLMetadata): Promise<File
                                 {
                                     type: '©rsl',
                                     data: new TextEncoder().encode(rslData)
+                                },
+                                {
+                                    type: '©RSL',
+                                    data: new TextEncoder().encode(rslData)
                                 }
                             ]
                         }
@@ -306,16 +342,23 @@ async function embedMP4Metadata(file: File, metadata: RSLMetadata): Promise<File
             ]
         };
         
-        
+        // Add metadata to the MP4 file
         mp4boxfile.addMetadata(rslMetadataAtom);
+        console.log('Added RSL metadata atom to MP4 file');
         
-        
+        // Get the modified buffer
         const modifiedBuffer = mp4boxfile.getBuffer();
+        console.log(`Modified MP4 buffer size: ${modifiedBuffer.byteLength} bytes`);
         
-        return new File([modifiedBuffer], file.name, { type: file.type });
+        // Create new file with embedded metadata
+        const embeddedFile = new File([modifiedBuffer], file.name, { type: file.type });
+        console.log(`Successfully embedded RSL metadata in MP4: ${embeddedFile.name}`);
+        
+        return embeddedFile;
         
     } catch (error) {
         console.error('Error embedding MP4 metadata:', error);
+        console.log('Falling back to sidecar file creation');
         
         return await createSidecarFile(file, metadata);
     }
@@ -367,15 +410,30 @@ async function embedPDFMetadata(file: File, metadata: RSLMetadata): Promise<File
 }
 
 async function createSidecarFile(originalFile: File, metadata: RSLMetadata): Promise<File> {
-    
+    // Create a comprehensive RSL sidecar file
     const rslData = JSON.stringify(metadata, null, 2);
-    const sidecarFile = new File([rslData], `${originalFile.name}.rsl`, { 
-        type: 'application/json' 
+    
+    // Create a more detailed sidecar file with metadata
+    const sidecarContent = `# RSL (Rights and Standards License) Metadata
+# Generated for: ${originalFile.name}
+# Created: ${new Date().toISOString()}
+# File Type: ${originalFile.type}
+# File Size: ${originalFile.size} bytes
+
+# This file contains RSL metadata for the associated media file.
+# The metadata should be read by AI systems and crawlers to respect licensing terms.
+
+${rslData}
+
+# End of RSL Metadata`;
+    
+    const sidecarFile = new File([sidecarContent], `${originalFile.name}.rsl`, { 
+        type: 'text/plain' 
     });
     
+    console.log(`Created RSL sidecar file for ${originalFile.name}: ${sidecarFile.name}`);
     
-    
-    return originalFile;
+    return sidecarFile;
 }
 
 function createRSLXMP(metadata: RSLMetadata): string {
@@ -505,39 +563,48 @@ async function extractMP3Metadata(file: File): Promise<RSLMetadata | null> {
 
 async function extractMP4Metadata(file: File): Promise<RSLMetadata | null> {
     try {
+        console.log(`Extracting MP4 metadata from: ${file.name}`);
         
         const MP4Box = await import('mp4box');
         
         const arrayBuffer = await file.arrayBuffer();
-        
+        console.log(`Loaded MP4 file for extraction: ${arrayBuffer.byteLength} bytes`);
         
         const mp4boxfile = MP4Box.createFile();
         
-        
         const uint8Array = new Uint8Array(arrayBuffer);
-        
-        
         uint8Array.buffer.fileStart = 0;
         mp4boxfile.appendBuffer(uint8Array);
         
-        
         const metadata = mp4boxfile.getMetadata();
+        console.log('MP4 metadata structure:', metadata);
         
         if (metadata && metadata.udta && metadata.udta.meta && metadata.udta.meta.ilst) {
+            console.log('Found MP4 metadata structure, looking for RSL data');
             
-            const rslData = metadata.udta.meta.ilst['©rsl'];
+            // Check both lowercase and uppercase RSL tags
+            const rslData = metadata.udta.meta.ilst['©rsl'] || metadata.udta.meta.ilst['©RSL'];
             if (rslData) {
+                console.log('Found RSL metadata in MP4 file');
                 try {
                     const rslString = new TextDecoder().decode(rslData);
-                    return JSON.parse(rslString);
+                    const parsedMetadata = JSON.parse(rslString);
+                    console.log('Successfully parsed RSL metadata from MP4');
+                    return parsedMetadata;
                 } catch (e) {
+                    console.error('Error parsing RSL metadata from MP4:', e);
                     return null;
                 }
+            } else {
+                console.log('No RSL metadata found in MP4 file');
             }
+        } else {
+            console.log('No metadata structure found in MP4 file');
         }
         
         return null;
     } catch (error) {
+        console.error('Error extracting MP4 metadata:', error);
         return null;
     }
 }
