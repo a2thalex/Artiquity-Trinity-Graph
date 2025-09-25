@@ -1,13 +1,9 @@
 {
   "rewrites": [
-    // 1. Route all /api/* calls to our serverless function directory (API Proxy)
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
-    // 2. Catch-all: For any other route, serve the main index.html file
-    //    This is CRITICAL for client-side routing (React Router, Vue Router, etc.)
-    //    so the router can load and handle the URL itself.
     {
       "source": "/(.*)",
       "destination": "/dist/index.html"
