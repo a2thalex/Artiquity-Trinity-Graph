@@ -23,22 +23,31 @@ const fileToBase64 = async (file: File): Promise<{ base64: string; mimeType: str
 };
 
 /**
- * Get data estimates using direct Gemini API.
+ * Get data estimates using secure API proxy.
  */
 export const getDataEstimates = async (description: string, purposes: string[], files: File[]): Promise<string> => {
     try {
-        const model = 'gemini-2.5-flash';
-        const prompt = `Based on the user's text description, their intended purposes, and any attached images, provide a concise, single-sentence estimate of the potential dataset size.
-        Description: "${description}"
-        Purposes: "${purposes.join(', ')}"
-        
-        Example output: "Estimates suggest a potential dataset of 15,000 - 20,000 high-quality works."`;
+        const filesData = await Promise.all(files.map(fileToBase64));
 
-        const fileParts = files.length > 0 ? await Promise.all(files.map(fileToGenerativePart)) : [];
-        const contents = { parts: [{ text: prompt }, ...fileParts] };
+        const response = await fetch(`${API_BASE}/data-estimates`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                description,
+                purposes,
+                files: filesData,
+            }),
+        });
 
-        const response = await ai.models.generateContent({ model, contents });
-        return response.text.trim();
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to get data estimates');
+        }
+
+        const result = await response.json();
+        return result.estimate;
 
     } catch (error) {
         console.error("Error getting data estimates:", error);
@@ -47,30 +56,28 @@ export const getDataEstimates = async (description: string, purposes: string[], 
 };
 
 /**
- * Get licensing estimates using direct Gemini API.
+ * Get licensing estimates using secure API proxy.
  */
 export const getLicensingEstimates = async (profile: DataProfile, terms: DataLicensingTerms): Promise<string> => {
     try {
-        if (!terms.compensationModel || terms.maxBudget === 0) {
-            return "Select a model and set a budget to see estimates.";
+        const response = await fetch(`${API_BASE}/licensing-estimates`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                profile,
+                terms,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to get licensing estimates');
         }
 
-        const model = 'gemini-2.5-flash';
-        const prompt = `Given the following data profile and licensing terms, provide a concise, single-sentence estimate of the potential dataset size and cost.
-        
-        Data Profile: ${JSON.stringify(profile)}
-        Licensing Terms: ${JSON.stringify(terms)}
-
-        Example output: "With your terms, we estimate ~12,000 works, at a cost of $4,200/mo."
-        Another example output: "With your terms, we estimate ~5,000 works for a one-time cost of $8,000."
-        
-        Keep it to one sentence.`;
-
-        const response = await ai.models.generateContent({
-            model,
-            contents: prompt,
-        });
-        return response.text.trim();
+        const result = await response.json();
+        return result.estimate;
 
     } catch (error) {
         console.error("Error getting licensing estimates:", error);
@@ -79,19 +86,27 @@ export const getLicensingEstimates = async (profile: DataProfile, terms: DataLic
 };
 
 /**
- * Generate dataset summary using direct Gemini API.
+ * Generate dataset summary using secure API proxy.
  */
 export const generateDatasetSummary = async (profile: DataProfile): Promise<string> => {
     try {
-        const model = 'gemini-2.5-flash';
-        const prompt = `Based on this data profile, create a brief, one-sentence description of the resulting dataset. Be descriptive but concise.
-        Data Profile: ${JSON.stringify(profile)}`;
-
-        const response = await ai.models.generateContent({
-            model,
-            contents: prompt,
+        const response = await fetch(`${API_BASE}/dataset-summary`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                profile,
+            }),
         });
-        return response.text.trim().replace(/["*]/g, '');
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate dataset summary');
+        }
+
+        const result = await response.json();
+        return result.summary;
 
     } catch (error) {
         console.error("Error generating dataset summary:", error);
@@ -133,60 +148,27 @@ export const generateIdentityCapsules = async (description: string, purposes: st
 };
 
 /**
- * Generate data profile and keywords using direct Gemini API.
+ * Generate data profile and keywords using secure API proxy.
  */
 export const generateDataProfileAndKeywords = async (description: string): Promise<{ profile: DataProfile, suggestions: DataProfileSuggestions }> => {
     try {
-        const model = 'gemini-2.5-flash';
-        const prompt = `Based on the user's description of their ideal dataset: "${description}", generate a data profile.
-        1.  Extract relevant keywords from the description and categorize them into: styles, moods, domains, demographics, and provenance.
-        2.  For each category, generate 5-7 additional, diverse, AI-suggested keyword chips that expand on the user's initial idea.
-        `;
-
-        const responseSchema = {
-            type: Type.OBJECT,
-            properties: {
-                profile: {
-                    type: Type.OBJECT,
-                    properties: {
-                        styles: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        moods: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        domains: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        demographics: { type: Type.ARRAY, items: { type: Type.STRING } },
-                        provenance: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    },
-                },
-                suggestions: {
-                   type: Type.OBJECT,
-                  properties: {
-                    styles: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    moods: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    domains: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    demographics: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    provenance: { type: Type.ARRAY, items: { type: Type.STRING } },
-                  },
-                }
+        const response = await fetch(`${API_BASE}/data-profile-keywords`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             },
-            required: ['profile', 'suggestions']
-        };
-
-        const response = await ai.models.generateContent({
-            model,
-            contents: prompt,
-            config: { responseMimeType: "application/json", responseSchema },
+            body: JSON.stringify({
+                description,
+            }),
         });
 
-        const parsed = JSON.parse(response.text.trim());
-        const finalProfile = { ...parsed.profile, description };
-        const combinedSuggestions = {
-            styles: [...new Set([...parsed.profile.styles, ...parsed.suggestions.styles])],
-            moods: [...new Set([...parsed.profile.moods, ...parsed.suggestions.moods])],
-            domains: [...new Set([...parsed.profile.domains, ...parsed.suggestions.domains])],
-            demographics: [...new Set([...parsed.profile.demographics, ...parsed.suggestions.demographics])],
-            provenance: [...new Set([...parsed.profile.provenance, ...parsed.suggestions.provenance])],
-        };
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate data profile and keywords');
+        }
 
-        return { profile: finalProfile, suggestions: combinedSuggestions };
+        const result = await response.json();
+        return result;
 
     } catch (error) {
         console.error("Error generating data profile and keywords:", error);
@@ -195,45 +177,31 @@ export const generateDataProfileAndKeywords = async (description: string): Promi
 };
 
 /**
- * Generate dataset preview using direct Gemini API.
+ * Generate dataset preview using secure API proxy.
  */
 export const generateDatasetPreview = async (
-    purposes: string[],
-    refinedProfile: DataProfile,
-    licensing: DataLicensingTerms
+    profile: DataProfile,
+    capsule: DataIdentityCapsule
 ): Promise<DatasetPreview> => {
     try {
-        const model = 'gemini-2.5-flash';
-        const prompt = `Given the following information, create a comprehensive dataset preview:
-        
-        Purposes: ${purposes.join(', ')}
-        Refined Profile: ${JSON.stringify(refinedProfile)}
-        Licensing Terms: ${JSON.stringify(licensing)}
-        
-        Generate a detailed preview that includes:
-        1. A compelling title for the dataset
-        2. A comprehensive description of what the dataset contains
-        3. Key characteristics and features
-        4. Expected use cases and applications
-        5. Sample data points or examples
-        6. Quality metrics and specifications`;
-
-        const response = await ai.models.generateContent({
-            model,
-            contents: prompt,
+        const response = await fetch(`${API_BASE}/dataset-preview`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                profile,
+                capsule,
+            }),
         });
 
-        const previewText = response.text.trim();
-        
-        // For now, return a simple preview structure
-        // You can enhance this to parse the response into a more structured format
-        return {
-            title: `Dataset Preview for ${refinedProfile.description}`,
-            description: previewText,
-            sampleData: ["Sample data point 1", "Sample data point 2", "Sample data point 3"],
-            qualityMetrics: ["High quality", "Curated", "Verified"],
-            useCases: purposes
-        };
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate dataset preview');
+        }
+
+        const result = await response.json();
+        return result.preview;
 
     } catch (error) {
         console.error("Error generating dataset preview:", error);
