@@ -2,7 +2,7 @@
 import type { IdentityCapsule, CreativeIdeas, SynchronicityAnalysis, GroundingChunk, SynchronicityResult } from '../types/trinity';
 
 // Base URL for API calls - will be handled by Vercel routing
-const API_BASE = '/api';
+const API_BASE = '/api/gemini';
 
 /**
  * Converts a File object to base64 data for secure API transmission.
