@@ -1,7 +1,7 @@
 import type { IdentityCapsule, CreativeOutput, SynchronicityResult, WebSource } from '../types/artistCapsule';
 
 // Base URL for API calls - will be handled by Vercel routing
-const API_BASE = '/api';
+const API_BASE = '/api/gemini';
 
 const identityCapsuleSchema = {
     type: "object",
