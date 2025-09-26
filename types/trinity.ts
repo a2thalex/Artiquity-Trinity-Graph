@@ -147,26 +147,3 @@ export interface PlatformContent {
   [platform: string]: PlatformStrategy;
 }
 
-export interface ContextualCampaign {
-  id: string;
-  name: string;
-  type: string;
-  culturalContext: any[];
-  targetAudiences: any[];
-  adCopy: SubcultureAdCopy;
-  socialPlan: SocialPlanDay[] | { error: string; fallback?: any };
-  outreachTemplates: InfluencerOutreach;
-  platformContent: PlatformContent | { error: string; fallback?: any };
-  metadata: {
-    identityElements: string[];
-    generationMethod: string;
-    culturalAlignment: string;
-  };
-}
-
-export interface ContextualCampaignResult {
-  success: boolean;
-  brandName: string;
-  generatedAt: string;
-  campaign: ContextualCampaign;
-}

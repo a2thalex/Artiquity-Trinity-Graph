@@ -8,7 +8,6 @@ interface Step4_CampaignProps {
     selectedCampaign: CampaignGenerationResult | null;
     setSelectedCampaign: (campaign: CampaignGenerationResult | null) => void;
     handleGenerateCampaign: (results?: SynchronicityResult[]) => void;
-    handleGenerateContextualCampaign?: (results?: SynchronicityResult[]) => void;
     handleDeployCampaign: () => void;
     handleRestart: () => void;
     error: string | null;
@@ -23,7 +22,6 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
     selectedCampaign,
     setSelectedCampaign,
     handleGenerateCampaign,
-    handleGenerateContextualCampaign,
     handleDeployCampaign,
     handleRestart,
     error,
@@ -113,14 +111,6 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                             >
                                 Generate All 3 Variations
                             </button>
-                            {handleGenerateContextualCampaign && (
-                                <button
-                                    onClick={() => handleGenerateContextualCampaign([topResults[0]])}
-                                    className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-colors"
-                                >
-                                    🎯 Generate Contextual Campaign
-                                </button>
-                            )}
                         </div>
                     </div>
                 </div>
@@ -145,12 +135,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                         Campaign Blueprint: {campaign.campaign.campaign_name}
                     </h2>
                     <p className="text-xl text-purple-600 italic">"{campaign.campaign.campaign_tagline}"</p>
-                    {(campaign as any).contextualData && (
-                        <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
-                            <p className="text-emerald-700 font-medium">🎯 Contextual Campaign Generated</p>
-                            <p className="text-sm text-emerald-600">This campaign uses specialized prompts for cultural authenticity</p>
-                        </div>
-                    )}
+
                 </div>
 
                 {/* Campaign Variations Selector */}
@@ -436,93 +421,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                     </div>
                 </div>
 
-                {/* Contextual Campaign Details */}
-                {(campaign as any).contextualData && (
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
-                        <h3 className="text-2xl font-bold text-emerald-800 mb-6 flex items-center gap-2">
-                            🎯 Contextual Campaign Intelligence
-                        </h3>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Ad Copy Section */}
-                            {(campaign as any).contextualData.adCopy && Object.keys((campaign as any).contextualData.adCopy).length > 0 && (
-                                <div className="bg-white rounded-lg p-4 shadow-sm">
-                                    <h4 className="font-bold text-lg text-gray-800 mb-3">📢 Targeted Ad Copy</h4>
-                                    <div className="space-y-3">
-                                        {Object.entries((campaign as any).contextualData.adCopy).slice(0, 2).map(([subculture, adData]: [string, any]) => (
-                                            <div key={subculture} className="border-l-4 border-emerald-400 pl-3">
-                                                <p className="font-medium text-emerald-700">{subculture}</p>
-                                                {adData.variation_1 && (
-                                                    <div className="text-sm text-gray-600 mt-1">
-                                                        <p className="font-medium">{adData.variation_1.headline}</p>
-                                                        <p className="text-xs">{adData.variation_1.body.substring(0, 100)}...</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Social Plan Section */}
-                            {(campaign as any).contextualData.socialPlan && Array.isArray((campaign as any).contextualData.socialPlan) && (
-                                <div className="bg-white rounded-lg p-4 shadow-sm">
-                                    <h4 className="font-bold text-lg text-gray-800 mb-3">📱 Social Media Plan</h4>
-                                    <div className="space-y-2">
-                                        {(campaign as any).contextualData.socialPlan.slice(0, 3).map((day: any, index: number) => (
-                                            <div key={index} className="border-l-4 border-blue-400 pl-3">
-                                                <p className="font-medium text-blue-700">Day {day.day}: {day.platform}</p>
-                                                <p className="text-sm text-gray-600">{day.theme}</p>
-                                                <p className="text-xs text-gray-500">{day.content_idea.substring(0, 80)}...</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Influencer Outreach Section */}
-                            {(campaign as any).contextualData.outreachTemplates && Object.keys((campaign as any).contextualData.outreachTemplates).length > 0 && (
-                                <div className="bg-white rounded-lg p-4 shadow-sm">
-                                    <h4 className="font-bold text-lg text-gray-800 mb-3">🤝 Influencer Outreach</h4>
-                                    <div className="space-y-2">
-                                        {Object.entries((campaign as any).contextualData.outreachTemplates).slice(0, 2).map(([influencer, template]: [string, any]) => (
-                                            <div key={influencer} className="border-l-4 border-purple-400 pl-3">
-                                                <p className="font-medium text-purple-700">{influencer}</p>
-                                                {template.subject && (
-                                                    <p className="text-sm text-gray-600">"{template.subject}"</p>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Platform Content Section */}
-                            {(campaign as any).contextualData.platformContent && Object.keys((campaign as any).contextualData.platformContent).length > 0 && (
-                                <div className="bg-white rounded-lg p-4 shadow-sm">
-                                    <h4 className="font-bold text-lg text-gray-800 mb-3">🌐 Platform Strategies</h4>
-                                    <div className="space-y-2">
-                                        {Object.entries((campaign as any).contextualData.platformContent).slice(0, 2).map(([platform, strategy]: [string, any]) => (
-                                            <div key={platform} className="border-l-4 border-orange-400 pl-3">
-                                                <p className="font-medium text-orange-700">{platform}</p>
-                                                {strategy.content_strategy && (
-                                                    <p className="text-sm text-gray-600">{strategy.content_strategy.substring(0, 100)}...</p>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="mt-4 p-3 bg-emerald-100 rounded-lg">
-                            <p className="text-sm text-emerald-700">
-                                💡 This contextual campaign was generated using specialized AI prompts that analyze cultural trends,
-                                audience subcultures, and platform-specific behaviors to create highly targeted marketing strategies.
-                            </p>
-                        </div>
-                    </div>
-                )}
 
                 {/* Action Buttons */}
                 <div className="flex justify-between items-center bg-white/90 rounded-xl p-6 shadow-lg">

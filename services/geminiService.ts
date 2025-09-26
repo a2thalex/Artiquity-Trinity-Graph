@@ -1,5 +1,5 @@
 // Secure API calls to server-side Gemini proxy
-import type { IdentityCapsule, CreativeIdeas, SynchronicityAnalysis, GroundingChunk, SynchronicityResult, Campaign, CampaignGenerationResult, CampaignExecutionPlan, ContextualCampaignResult } from '../types/trinity';
+import type { IdentityCapsule, CreativeIdeas, SynchronicityAnalysis, GroundingChunk, SynchronicityResult, Campaign, CampaignGenerationResult, CampaignExecutionPlan } from '../types/trinity';
 
 // Base URL for API calls - will be handled by Vercel routing
 const API_BASE = '/api/gemini';
@@ -241,107 +241,6 @@ export const generateCampaign = async (
     } catch (error) {
         console.error("Error generating campaign:", error);
         throw new Error("Failed to generate campaign. Please try again.");
-    }
-};
-
-/**
- * Generates a context-aware campaign using specialized prompts for different campaign components.
- * @param brandName The name of the brand.
- * @param synchronicityDashboard The synchronicity dashboard with cultural trend analysis.
- * @param identityElements Selected brand identity elements for consistency.
- * @returns A promise that resolves to a ContextualCampaignResult object.
- */
-// Helper function to add delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-export const generateContextualCampaign = async (
-    brandName: string,
-    synchronicityDashboard: any, // Will be SynchronicityResult from artistCapsule types
-    identityElements: string[],
-    retryCount: number = 0
-): Promise<ContextualCampaignResult> => {
-    try {
-        console.log('🚀 Starting contextual campaign generation...');
-        console.log('📊 Brand Name:', brandName);
-        console.log('📊 Identity Elements:', identityElements);
-        console.log('📊 API URL:', `${API_BASE}/generate-contextual-campaign`);
-
-        const requestBody = {
-            brandName,
-            synchronicityDashboard,
-            identityElements
-        };
-
-        console.log('📊 Request Body:', JSON.stringify(requestBody, null, 2));
-
-        const response = await fetch(`${API_BASE}/generate-contextual-campaign`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-        });
-
-        console.log('📊 Response Status:', response.status);
-        console.log('📊 Response Status Text:', response.statusText);
-        console.log('📊 Response Headers:', Object.fromEntries(response.headers.entries()));
-
-        if (!response.ok) {
-            console.error('❌ Response not OK, attempting to read error...');
-
-            // Try to get the response text first
-            const responseText = await response.text();
-            console.error('❌ Error Response Text:', responseText);
-
-            // Try to parse as JSON if possible
-            let errorData;
-            try {
-                errorData = JSON.parse(responseText);
-                console.error('❌ Parsed Error Data:', errorData);
-            } catch (parseError) {
-                console.error('❌ Could not parse error response as JSON:', parseError.message);
-                console.error('❌ Raw response (first 500 chars):', responseText.substring(0, 500));
-
-                // If we get HTML instead of JSON, it's likely a server error page
-                if (responseText.includes('<!DOCTYPE') || responseText.includes('<html>')) {
-                    throw new Error(`Server returned HTML error page instead of JSON. Status: ${response.status} ${response.statusText}`);
-                }
-
-                throw new Error(`API returned non-JSON error response: ${response.status} ${response.statusText}`);
-            }
-
-            throw new Error(errorData.error || `API request failed: ${response.status} ${response.statusText}`);
-        }
-
-        const responseText = await response.text();
-        console.log('✅ Success Response Text (first 200 chars):', responseText.substring(0, 200));
-
-        const result = JSON.parse(responseText);
-        console.log('✅ Contextual campaign generated successfully!');
-        console.log('✅ Campaign ID:', result.campaign?.id);
-
-        return result;
-
-    } catch (error) {
-        console.error("❌ Error generating contextual campaign:", error);
-
-        // Retry logic for 503 errors (up to 2 retries)
-        if ((error.message.includes('503') || error.message.includes('Service Unavailable')) && retryCount < 2) {
-            console.log(`🔄 Retrying contextual campaign generation (attempt ${retryCount + 1}/2)...`);
-            await delay(2000 * (retryCount + 1)); // Exponential backoff: 2s, 4s
-            return generateContextualCampaign(brandName, synchronicityDashboard, identityElements, retryCount + 1);
-        }
-
-        // Provide more specific error messages
-        if (error.message.includes('fetch')) {
-            throw new Error("Network error: Unable to connect to the API. Please check your internet connection and try again.");
-        } else if (error.message.includes('JSON')) {
-            throw new Error("Server error: The API returned an invalid response. Please try again in a moment.");
-        } else if (error.message.includes('503')) {
-            throw new Error("Service temporarily unavailable: The API is currently overloaded. Please wait a moment and try again.");
-        } else {
-            throw new Error(error.message || "Failed to generate contextual campaign. Please try again.");
-        }
     }
 };
 
