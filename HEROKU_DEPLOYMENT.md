@@ -40,6 +40,9 @@ heroku config:set GEMINI_API_KEY=your_gemini_api_key_here
 # Required: FAL AI API Key
 heroku config:set FAL_API_KEY=your_fal_api_key_here
 
+# Required: Perplexity API Key (for real-time web search)
+heroku config:set PERPLEXITY_API_KEY=your_perplexity_api_key_here
+
 # Optional: Set Node environment
 heroku config:set NODE_ENV=production
 
@@ -76,6 +79,7 @@ heroku logs --tail
 |----------|-------------|----------|
 | `GEMINI_API_KEY` | Google Gemini API key for AI generation | Yes |
 | `FAL_API_KEY` | FAL AI API key for image generation | Yes |
+| `PERPLEXITY_API_KEY` | Perplexity API key for real-time web search | Yes |
 | `NODE_ENV` | Set to 'production' for production builds | Auto-set |
 | `PORT` | Port for the server (auto-assigned by Heroku) | Auto-set |
 

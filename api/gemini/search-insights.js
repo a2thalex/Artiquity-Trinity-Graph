@@ -4,11 +4,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
+  const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
+
   try {
     const { query, type, context } = req.body;
 
     if (!query || !type) {
       return res.status(400).json({ error: 'Query and type are required' });
+    }
+
+    console.log(`🔍 Generating insights for: ${query} (type: ${type})`);
+
+    // Try Perplexity API first for real-time insights
+    if (PERPLEXITY_API_KEY) {
+      try {
+        const perplexityResult = await generatePerplexityInsights(query, type, context);
+        if (perplexityResult) {
+          return res.json(perplexityResult);
+        }
+      } catch (error) {
+        console.error('Perplexity API failed, falling back to search:', error);
+      }
     }
 
     let searchQuery = '';
@@ -34,7 +50,7 @@ export default async function handler(req, res) {
 
     console.log(`Searching for: ${searchQuery}`);
 
-    // Perform real web search
+    // Perform real web search as fallback
     const searchResults = await performRealWebSearch(searchQuery, numResults);
     
     if (!searchResults || searchResults.length === 0) {
@@ -84,6 +100,122 @@ export default async function handler(req, res) {
       error: 'Failed to fetch insights',
       details: error.message 
     });
+  }
+}
+
+/**
+ * Generate insights using Perplexity API
+ */
+async function generatePerplexityInsights(query, type, context) {
+  try {
+    let prompt = '';
+
+    switch (type) {
+      case 'trend':
+        prompt = `Analyze the current cultural trend: "${query}". Provide specific, actionable insights about:
+
+1. Current examples and manifestations of this trend
+2. Key influencers and creators driving this trend
+3. Platforms where this trend is most active
+4. Recent developments and momentum (2024-2025)
+5. Specific metrics, engagement data, or growth indicators
+
+Focus on real, current data and provide concrete examples with specific names, numbers, and platforms.`;
+        break;
+
+      case 'audience':
+        prompt = `Analyze the audience and community around: "${query}". Provide detailed insights about:
+
+1. Specific communities and subcultures engaged with this topic
+2. Key influencers, creators, and tastemakers
+3. Primary social media platforms and engagement patterns
+4. Demographics and psychographics of the audience
+5. Community behaviors, preferences, and content consumption patterns
+
+Include specific usernames, platform statistics, and community sizes where possible.`;
+        break;
+
+      case 'format':
+        prompt = `Analyze successful content formats and strategies for: "${query}". Provide actionable insights about:
+
+1. Most effective content formats and presentation styles
+2. Successful case studies and campaign examples
+3. Optimal timing and distribution strategies
+4. Platform-specific best practices
+5. Engagement tactics and conversion strategies
+
+Include specific examples of successful campaigns, creators, and measurable results.`;
+        break;
+
+      default:
+        prompt = `Provide comprehensive cultural and market insights about: "${query}". Include current trends, key players, platforms, and actionable recommendations based on real-time data.`;
+    }
+
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'sonar-pro',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a cultural trend analyst and marketing strategist. Provide detailed, actionable insights based on real-time web data. Be specific with names, numbers, platforms, and examples.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 1500,
+        temperature: 0.7,
+        return_citations: true,
+        search_domain_filter: ["reddit.com", "twitter.com", "tiktok.com", "instagram.com", "youtube.com", "artstation.com", "behance.net"],
+        search_recency_filter: "month"
+      })
+    });
+
+    if (!response.ok) {
+      console.error('Perplexity API error:', response.status, response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    const insights = data.choices[0]?.message?.content || '';
+
+    // Extract sources from citations and search results
+    const sources = [];
+
+    if (data.citations && data.citations.length > 0) {
+      data.citations.forEach(citation => {
+        sources.push({
+          title: 'Research Source',
+          url: citation,
+          snippet: 'Real-time web research via Perplexity'
+        });
+      });
+    }
+
+    if (data.search_results && data.search_results.length > 0) {
+      data.search_results.forEach(result => {
+        sources.push({
+          title: result.title || 'Cultural Research Source',
+          url: result.url || '#',
+          snippet: result.snippet || 'Real-time cultural insights'
+        });
+      });
+    }
+
+    return {
+      insights,
+      sources: sources.slice(0, 6) // Limit to 6 sources
+    };
+
+  } catch (error) {
+    console.error('Error generating Perplexity insights:', error);
+    return null;
   }
 }
 
