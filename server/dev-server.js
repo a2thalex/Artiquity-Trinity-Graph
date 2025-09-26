@@ -144,11 +144,11 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(distPath));
 
   // Serve index.html for all non-API routes (SPA routing)
-  app.get('/*', (req, res) => {
+  app.use((req, res, next) => {
     if (!req.path.startsWith('/api')) {
       res.sendFile(path.join(distPath, 'index.html'));
     } else {
-      res.status(404).json({ error: "API endpoint not found" });
+      next();
     }
   });
 } else {
