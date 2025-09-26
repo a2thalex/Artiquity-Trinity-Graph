@@ -2,7 +2,6 @@ export enum Step {
   Identity = 1,
   Creativity = 2,
   Synchronicity = 3,
-  Campaign = 4,
 }
 
 export interface IdentityCapsule {

@@ -9,7 +9,6 @@ const steps = [
   { id: Step.Identity, name: 'Identity' },
   { id: Step.Creativity, name: 'Creativity' },
   { id: Step.Synchronicity, name: 'Synchronicity' },
-  { id: Step.Campaign, name: 'Campaign' },
 ];
 
 const StepIndicator: React.FC<StepIndicatorProps> = ({ currentStep }) => {

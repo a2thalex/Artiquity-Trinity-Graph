@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { generateSynchronicityDashboard } from '../services/artistCapsuleService';
+import { generateContextualCampaign } from '../services/geminiService';
 import type { CreativeOutput, SynchronicityResult, TrendMatch, AudienceNode, FormatSuggestion } from '../types/artistCapsule';
+import type { ContextualCampaignResult } from '../types/trinity';
 import Card from './Card';
 import Loader from './Loader';
 
@@ -9,6 +11,8 @@ interface Step3SynchronicityProps {
   onComplete: (result: SynchronicityResult) => void;
   result: SynchronicityResult | null;
   onRestart: () => void;
+  artistName: string;
+  selectedIdentityElements: string[];
 }
 
 // Modal component for displaying detailed information
@@ -99,9 +103,14 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
   onComplete,
   result,
   onRestart,
+  artistName,
+  selectedIdentityElements,
 }) => {
   const [isLoading, setIsLoading] = useState(!result);
   const [error, setError] = useState<string | null>(null);
+  const [contextualCampaign, setContextualCampaign] = useState<ContextualCampaignResult | null>(null);
+  const [isCampaignLoading, setIsCampaignLoading] = useState<boolean>(false);
+  const [campaignError, setCampaignError] = useState<string | null>(null);
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
     title: string;
@@ -135,6 +144,26 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
       generateDashboard();
     }
   }, [creativeOutput, onComplete, result]);
+
+  const handleGenerateContextualCampaign = useCallback(async () => {
+    if (!result) return;
+
+    setIsCampaignLoading(true);
+    setCampaignError(null);
+
+    try {
+      const campaign = await generateContextualCampaign(
+        artistName,
+        result,
+        selectedIdentityElements
+      );
+      setContextualCampaign(campaign);
+    } catch (err) {
+      setCampaignError(err instanceof Error ? err.message : 'Failed to generate contextual campaign');
+    } finally {
+      setIsCampaignLoading(false);
+    }
+  }, [artistName, result, selectedIdentityElements]);
 
   const openModal = async (title: string, staticContent: string, type: 'trend' | 'audience' | 'format') => {
     // Open modal immediately with loading state
@@ -351,6 +380,174 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
                 </Card>
             )}
         </div>
+      </div>
+
+      {/* Contextual Campaign Generation Section */}
+      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold text-white mb-2">🎯 Deep Research & Campaign Generation</h3>
+          <p className="text-white/80">
+            Transform your synchronicity analysis into culturally-aware marketing campaigns with specialized AI prompts
+          </p>
+        </div>
+
+        {!contextualCampaign && !isCampaignLoading && (
+          <div className="text-center">
+            <button
+              onClick={handleGenerateContextualCampaign}
+              className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all duration-300 font-bold text-lg shadow-lg"
+            >
+              🎯 Generate Contextual Campaign
+            </button>
+          </div>
+        )}
+
+        {isCampaignLoading && (
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto mb-4"></div>
+            <p className="text-white/80">Generating your contextual campaign...</p>
+          </div>
+        )}
+
+        {campaignError && (
+          <div className="bg-red-500/20 border border-red-400/50 rounded-lg p-4 mb-4">
+            <p className="text-red-200">{campaignError}</p>
+            <button
+              onClick={handleGenerateContextualCampaign}
+              className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {contextualCampaign && (
+          <div className="space-y-6">
+            {/* Campaign Success Header */}
+            <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-xl p-6 border border-emerald-400/50">
+              <h4 className="text-xl font-bold text-emerald-200 mb-2">
+                ✅ Contextual Campaign Generated!
+              </h4>
+              <p className="text-emerald-100/80">
+                Your culturally-aware marketing campaign is ready with specialized AI-generated content for each target audience.
+              </p>
+            </div>
+
+            {/* Campaign Details Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Ad Copy */}
+              {contextualCampaign.campaign.adCopy && Object.keys(contextualCampaign.campaign.adCopy).length > 0 && (
+                <div className="bg-white/10 rounded-lg p-4 border border-white/20">
+                  <h5 className="font-bold text-lg text-white mb-3 flex items-center gap-2">
+                    📢 Targeted Ad Copy
+                  </h5>
+                  <div className="space-y-3">
+                    {Object.entries(contextualCampaign.campaign.adCopy).slice(0, 2).map(([subculture, adData]: [string, any]) => (
+                      <div key={subculture} className="border-l-4 border-emerald-400 pl-3">
+                        <p className="font-medium text-emerald-300 mb-1">{subculture}</p>
+                        {adData.variation_1 && (
+                          <div className="text-sm text-white/70">
+                            <p className="font-medium mb-1">"{adData.variation_1.headline}"</p>
+                            <p className="text-xs text-white/50">{adData.variation_1.body.substring(0, 100)}...</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Social Plan */}
+              {contextualCampaign.campaign.socialPlan && Array.isArray(contextualCampaign.campaign.socialPlan) && (
+                <div className="bg-white/10 rounded-lg p-4 border border-white/20">
+                  <h5 className="font-bold text-lg text-white mb-3 flex items-center gap-2">
+                    📱 7-Day Social Plan
+                  </h5>
+                  <div className="space-y-2">
+                    {contextualCampaign.campaign.socialPlan.slice(0, 3).map((day: any, index: number) => (
+                      <div key={index} className="border-l-4 border-blue-400 pl-3">
+                        <p className="font-medium text-blue-300">Day {day.day}: {day.platform}</p>
+                        <p className="text-sm text-white/70">{day.theme}</p>
+                        <p className="text-xs text-white/50">{day.content_idea.substring(0, 80)}...</p>
+                      </div>
+                    ))}
+                    <p className="text-xs text-white/50 mt-2">+ {contextualCampaign.campaign.socialPlan.length - 3} more days</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Influencer Outreach */}
+              {contextualCampaign.campaign.outreachTemplates && Object.keys(contextualCampaign.campaign.outreachTemplates).length > 0 && (
+                <div className="bg-white/10 rounded-lg p-4 border border-white/20">
+                  <h5 className="font-bold text-lg text-white mb-3 flex items-center gap-2">
+                    🤝 Influencer Outreach
+                  </h5>
+                  <div className="space-y-2">
+                    {Object.entries(contextualCampaign.campaign.outreachTemplates).slice(0, 2).map(([influencer, template]: [string, any]) => (
+                      <div key={influencer} className="border-l-4 border-purple-400 pl-3">
+                        <p className="font-medium text-purple-300">{influencer}</p>
+                        {template.subject && (
+                          <p className="text-sm text-white/70">"{template.subject}"</p>
+                        )}
+                        {template.body && (
+                          <p className="text-xs text-white/50">{template.body.substring(0, 80)}...</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Platform Strategies */}
+              {contextualCampaign.campaign.platformContent && Object.keys(contextualCampaign.campaign.platformContent).length > 0 && (
+                <div className="bg-white/10 rounded-lg p-4 border border-white/20">
+                  <h5 className="font-bold text-lg text-white mb-3 flex items-center gap-2">
+                    🌐 Platform Strategies
+                  </h5>
+                  <div className="space-y-2">
+                    {Object.entries(contextualCampaign.campaign.platformContent).slice(0, 2).map(([platform, strategy]: [string, any]) => (
+                      <div key={platform} className="border-l-4 border-orange-400 pl-3">
+                        <p className="font-medium text-orange-300">{platform.charAt(0).toUpperCase() + platform.slice(1)}</p>
+                        {strategy.content_strategy && (
+                          <p className="text-sm text-white/70">{strategy.content_strategy.substring(0, 100)}...</p>
+                        )}
+                        {strategy.posting_frequency && (
+                          <p className="text-xs text-white/50">Frequency: {strategy.posting_frequency}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-4 pt-4">
+              <button
+                onClick={() => {
+                  const dataStr = JSON.stringify(contextualCampaign, null, 2);
+                  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                  const exportFileDefaultName = `${artistName}-contextual-campaign-${Date.now()}.json`;
+                  const linkElement = document.createElement('a');
+                  linkElement.setAttribute('href', dataUri);
+                  linkElement.setAttribute('download', exportFileDefaultName);
+                  linkElement.click();
+                }}
+                className="px-6 py-3 bg-gray-600/80 text-white rounded-lg hover:bg-gray-700/80 transition-colors flex items-center gap-2"
+              >
+                📥 Export Campaign
+              </button>
+              <button
+                onClick={() => {
+                  alert('Campaign deployment feature coming soon! For now, use the export function to download your campaign data.');
+                }}
+                className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-colors flex items-center gap-2"
+              >
+                🚀 Deploy Campaign
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
        <div className="text-center pt-4">
