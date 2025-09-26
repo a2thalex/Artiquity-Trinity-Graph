@@ -1,5 +1,5 @@
 // Secure API calls to server-side Gemini proxy
-import type { IdentityCapsule, CreativeIdeas, SynchronicityAnalysis, GroundingChunk, SynchronicityResult, Campaign, CampaignGenerationResult, CampaignExecutionPlan } from '../types/trinity';
+import type { IdentityCapsule, CreativeIdeas, SynchronicityAnalysis, GroundingChunk, SynchronicityResult, Campaign, CampaignGenerationResult, CampaignExecutionPlan, ContextualCampaignResult } from '../types/trinity';
 
 // Base URL for API calls - will be handled by Vercel routing
 const API_BASE = '/api/gemini';
@@ -212,7 +212,7 @@ export const generateVisionBoard = async (brandName: string, idea: string): Prom
  * @returns A promise that resolves to a CampaignGenerationResult object.
  */
 export const generateCampaign = async (
-    brandName: string, 
+    brandName: string,
     synchronicityResult: SynchronicityResult,
     identityElements: string[]
 ): Promise<CampaignGenerationResult> => {
@@ -241,6 +241,45 @@ export const generateCampaign = async (
     } catch (error) {
         console.error("Error generating campaign:", error);
         throw new Error("Failed to generate campaign. Please try again.");
+    }
+};
+
+/**
+ * Generates a context-aware campaign using specialized prompts for different campaign components.
+ * @param brandName The name of the brand.
+ * @param synchronicityDashboard The synchronicity dashboard with cultural trend analysis.
+ * @param identityElements Selected brand identity elements for consistency.
+ * @returns A promise that resolves to a ContextualCampaignResult object.
+ */
+export const generateContextualCampaign = async (
+    brandName: string,
+    synchronicityDashboard: any, // Will be SynchronicityResult from artistCapsule types
+    identityElements: string[]
+): Promise<ContextualCampaignResult> => {
+    try {
+        const response = await fetch(`${API_BASE}/generate-contextual-campaign`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                brandName,
+                synchronicityDashboard,
+                identityElements
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to generate contextual campaign');
+        }
+
+        const result = await response.json();
+        return result;
+
+    } catch (error) {
+        console.error("Error generating contextual campaign:", error);
+        throw new Error("Failed to generate contextual campaign. Please try again.");
     }
 };
 

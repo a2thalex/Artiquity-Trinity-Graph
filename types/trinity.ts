@@ -99,3 +99,74 @@ export interface CampaignExecutionPlan {
   month3: string[];
   ongoing: string[];
 }
+
+// Contextual Campaign Types
+export interface AdCopyVariation {
+  headline: string;
+  body: string;
+  cta: string;
+}
+
+export interface SubcultureAdCopy {
+  [subculture: string]: {
+    variation_1: AdCopyVariation;
+    variation_2: AdCopyVariation;
+    variation_3: AdCopyVariation;
+  } | { error: string; fallback?: any };
+}
+
+export interface SocialPlanDay {
+  day: number;
+  platform: string;
+  format: string;
+  theme: string;
+  content_idea: string;
+  sample_caption: string;
+  timing: string;
+}
+
+export interface OutreachTemplate {
+  subject: string;
+  body: string;
+  follow_up: string;
+}
+
+export interface InfluencerOutreach {
+  [influencer: string]: OutreachTemplate | { error: string; fallback?: any };
+}
+
+export interface PlatformStrategy {
+  content_strategy: string;
+  content_types: string[];
+  posting_frequency: string;
+  engagement_tactics: string[];
+  success_metrics: string[];
+}
+
+export interface PlatformContent {
+  [platform: string]: PlatformStrategy;
+}
+
+export interface ContextualCampaign {
+  id: string;
+  name: string;
+  type: string;
+  culturalContext: any[];
+  targetAudiences: any[];
+  adCopy: SubcultureAdCopy;
+  socialPlan: SocialPlanDay[] | { error: string; fallback?: any };
+  outreachTemplates: InfluencerOutreach;
+  platformContent: PlatformContent | { error: string; fallback?: any };
+  metadata: {
+    identityElements: string[];
+    generationMethod: string;
+    culturalAlignment: string;
+  };
+}
+
+export interface ContextualCampaignResult {
+  success: boolean;
+  brandName: string;
+  generatedAt: string;
+  campaign: ContextualCampaign;
+}
