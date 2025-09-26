@@ -57,96 +57,66 @@ export default async function handler(req, res) {
     const formatSuggestions = dashboard.formatSuggestions || [];
     
     const campaignPrompt = `
-You are a world-class campaign strategist developing a comprehensive campaign for ${brandName}.
+Create a campaign strategy for ${brandName}.
 
 CREATIVE IDEA: ${idea}
-SYNCHRONICITY SCORE: ${score}/100
-RATIONALE: ${rationale}
+SCORE: ${score}/100
+BRAND ELEMENTS: ${identityElements.slice(0, 3).join(', ')}
 
-TREND ANALYSIS:
-- Trend Matches: ${trendMatches.map(t => `${t.name} (${t.velocity}): ${t.description}`).join('; ')}
-- Audience Nodes: ${audienceNodes.map(a => `${a.category}: ${a.items.join(', ')}`).join('; ')}
-- Format Suggestions: ${formatSuggestions.map(f => `${f.idea} (${f.timing})`).join('; ')}
+Generate a focused campaign strategy with:
 
-BRAND IDENTITY ELEMENTS: ${identityElements.join(', ')}
-
-Generate a comprehensive campaign strategy that:
-1. Leverages the identified cultural trends and synchronicities
-2. Aligns with the brand's core identity elements
-3. Creates a clear path from strategy to execution
-4. Includes specific, actionable tactics
-5. Defines measurable success metrics
-
-Return a JSON object with this exact structure:
+Return JSON:
 {
   "campaign": {
-    "id": "unique_campaign_id",
-    "creative_idea": "the original creative idea",
-    "campaign_name": "memorable campaign name",
-    "campaign_tagline": "powerful tagline that captures the essence",
-    "campaign_type": "social|influencer|experiential|digital|hybrid|content|guerrilla",
-    "platforms": ["primary platform", "secondary platform", "tertiary platform"],
+    "id": "campaign_${Date.now()}",
+    "creative_idea": "${idea}",
+    "campaign_name": "memorable name",
+    "campaign_tagline": "powerful tagline",
+    "campaign_type": "hybrid",
+    "platforms": ["Instagram", "TikTok", "Website"],
     "target_audience": {
-      "primary": "detailed primary audience description",
-      "secondary": ["secondary audience 1", "secondary audience 2"],
-      "demographics": ["age range", "location", "income level", "education"],
-      "psychographics": ["interest 1", "value 1", "lifestyle trait 1", "behavior pattern 1"]
+      "primary": "main audience description",
+      "demographics": ["25-35", "Urban", "College+"],
+      "psychographics": ["Creative", "Tech-savvy", "Trend-conscious"]
     },
     "key_messages": [
-      "core message 1 that resonates with the audience",
-      "core message 2 that differentiates the brand",
-      "core message 3 that drives action"
+      "core message 1",
+      "core message 2",
+      "core message 3"
     ],
-    "activation_timeline": [
+    "timeline": [
       {
-        "phase": "Phase 1: Launch & Awareness",
+        "phase": "Launch",
         "duration": "Weeks 1-2",
-        "activities": [
-          "specific launch activity 1",
-          "specific launch activity 2",
-          "specific launch activity 3"
-        ],
-        "milestones": ["key milestone to achieve by end of phase"]
+        "activities": ["activity 1", "activity 2"]
       },
       {
-        "phase": "Phase 2: Engagement & Amplification",
+        "phase": "Amplify",
         "duration": "Weeks 3-6",
-        "activities": [
-          "engagement activity 1",
-          "engagement activity 2",
-          "engagement activity 3"
-        ],
-        "milestones": ["engagement milestone"]
+        "activities": ["engagement 1", "engagement 2"]
       },
       {
-        "phase": "Phase 3: Conversion & Sustain",
+        "phase": "Convert",
         "duration": "Weeks 7-12",
-        "activities": [
-          "conversion activity 1",
-          "conversion activity 2",
-          "sustaining activity"
-        ],
-        "milestones": ["conversion milestone", "campaign wrap milestone"]
+        "activities": ["conversion 1", "sustain"]
       }
     ],
-    "budget_tier": "micro|small|medium|large|enterprise",
-    "estimated_budget_range": "$X,XXX - $XX,XXX",
+    "budget_tier": "medium",
+    "budget_range": "$80,000 - $180,000",
+    "duration": "90 Days",
     "kpis": [
       {
-        "metric": "Reach/Impressions",
-        "target": "specific number",
-        "measurement": "how it will be measured"
+        "metric": "Reach",
+        "target": "500K impressions"
       },
       {
-        "metric": "Engagement Rate",
-        "target": "specific percentage",
-        "measurement": "calculation method"
+        "metric": "Engagement",
+        "target": "5% rate"
       },
       {
-        "metric": "Conversion/Action",
-        "target": "specific number or rate",
-        "measurement": "tracking method"
-      },
+        "metric": "Conversions",
+        "target": "2,500 actions"
+      }
       {
         "metric": "Brand Sentiment",
         "target": "percentage positive",
@@ -232,7 +202,14 @@ Make the campaign innovative, culturally relevant, and highly executable. Base b
 
     console.log('Generating campaign with prompt length:', campaignPrompt.length);
 
-    const result = await model.generateContent(campaignPrompt);
+    // Add timeout to prevent Heroku timeout
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timeout')), 25000) // 25 seconds
+    );
+
+    const generatePromise = model.generateContent(campaignPrompt);
+
+    const result = await Promise.race([generatePromise, timeoutPromise]);
     const response = await result.response;
     const text = response.text();
 
