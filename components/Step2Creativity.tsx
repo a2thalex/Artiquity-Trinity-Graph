@@ -58,7 +58,7 @@ const Step2Creativity: React.FC<Step2CreativityProps> = ({ artistName, selectedI
     setCreativeOutput(null);
 
     try {
-      const result = await generateCreativeImage(artistName, selectedIdentityElements, selectedStrategy, customInputs);
+      const result = await generateCreativeImage(artistName, selectedStrategy, selectedIdentityElements, customInputs);
       setCreativeOutput(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -132,7 +132,13 @@ const Step2Creativity: React.FC<Step2CreativityProps> = ({ artistName, selectedI
             <p className="text-center text-white/80 -mt-1 mb-8">A new work, born from your direction and the essence of <span className="font-bold">{artistName}</span>.</p>
             <Card>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                    <img src={creativeOutput.imageUrl} alt="Generated artwork" className="rounded-lg shadow-lg w-full aspect-square object-cover" />
+                    {creativeOutput.imageUrl ? (
+                        <img src={creativeOutput.imageUrl} alt="Generated artwork" className="rounded-lg shadow-lg w-full aspect-square object-cover" />
+                    ) : (
+                        <div className="rounded-lg border border-dashed border-white/40 bg-white/10 w-full aspect-square flex items-center justify-center text-white/70 text-sm">
+                            Visual preview will appear here when an image URL is provided.
+                        </div>
+                    )}
                     <div className="space-y-4">
                         <h3 className="font-bold text-xl">Generated Vision</h3>
                         <p className="text-stone-700 leading-relaxed text-sm italic">{creativeOutput.prompt}</p>
@@ -155,3 +161,5 @@ const Step2Creativity: React.FC<Step2CreativityProps> = ({ artistName, selectedI
 };
 
 export default Step2Creativity;
+
+

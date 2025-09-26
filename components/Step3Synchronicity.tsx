@@ -18,7 +18,9 @@ const InfoModal: React.FC<{
   title: string;
   content: string;
   type: 'trend' | 'audience' | 'format';
-}> = ({ isOpen, onClose, title, content, type }) => {
+  isLoading: boolean;
+  sources: Array<{title: string, url: string, snippet: string}>;
+}> = ({ isOpen, onClose, title, content, type, isLoading, sources }) => {
   if (!isOpen) return null;
 
   const getTypeColor = () => {
@@ -44,12 +46,44 @@ const InfoModal: React.FC<{
             </button>
           </div>
           <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-            {content}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <span className="ml-3">Searching for real-world insights...</span>
+              </div>
+            ) : (
+              content
+            )}
           </div>
+
+          {!isLoading && sources.length > 0 && (
+            <div className="mt-6 border-t pt-4">
+              <h4 className="font-semibold text-gray-800 mb-3">Sources:</h4>
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {sources.map((source, index) => (
+                  <div key={index} className="text-sm">
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      {source.title}
+                    </a>
+                    {source.snippet && (
+                      <p className="text-gray-600 text-xs mt-1 line-clamp-2">{source.snippet}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="mt-6 text-right">
             <button
               onClick={onClose}
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              disabled={isLoading}
             >
               Close
             </button>
@@ -73,11 +107,15 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
     title: string;
     content: string;
     type: 'trend' | 'audience' | 'format';
+    isLoading: boolean;
+    sources: Array<{title: string, url: string, snippet: string}>;
   }>({
     isOpen: false,
     title: '',
     content: '',
-    type: 'trend'
+    type: 'trend',
+    isLoading: false,
+    sources: []
   });
 
   useEffect(() => {
@@ -98,17 +136,64 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
     }
   }, [creativeOutput, onComplete, result]);
 
-  const openModal = (title: string, content: string, type: 'trend' | 'audience' | 'format') => {
+  const openModal = async (title: string, staticContent: string, type: 'trend' | 'audience' | 'format') => {
+    // Open modal immediately with loading state
     setModalState({
       isOpen: true,
       title,
-      content,
-      type
+      content: 'Loading real-world insights...',
+      type,
+      isLoading: true,
+      sources: []
     });
+
+    try {
+      // Fetch real insights from web search
+      const response = await fetch('/api/gemini/search-insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: title,
+          type: type,
+          context: staticContent
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch insights');
+      }
+
+      const data = await response.json();
+
+      // Update modal with real data
+      setModalState(prev => ({
+        ...prev,
+        content: data.insights,
+        isLoading: false,
+        sources: data.sources || []
+      }));
+
+    } catch (error) {
+      console.error('Error fetching insights:', error);
+      // Fallback to static content if search fails
+      setModalState(prev => ({
+        ...prev,
+        content: staticContent + '\n\n*Note: Unable to fetch current web data. Showing general insights.*',
+        isLoading: false,
+        sources: []
+      }));
+    }
   };
 
   const closeModal = () => {
-    setModalState(prev => ({ ...prev, isOpen: false }));
+    setModalState(prev => ({
+      ...prev,
+      isOpen: false,
+      isLoading: false,
+      sources: []
+    }));
   };
 
   const getTrendDetails = (match: TrendMatch) => {
@@ -157,6 +242,21 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
   }
   
   const { dashboard, sources } = result;
+
+  // Defensive check to ensure dashboard has the expected structure
+  if (!dashboard || !dashboard.trendMatches || !dashboard.audienceNodes || !dashboard.formatSuggestions) {
+    return (
+        <Card className="text-center">
+             <p className="text-stone-600 mb-4">Dashboard data is incomplete. Please try regenerating.</p>
+             <button
+              onClick={onRestart}
+              className="px-8 py-3 text-white font-bold rounded-xl transition-all duration-300 hover:opacity-90" style={{ backgroundColor: '#6B7280' }}
+            >
+              Start Over
+            </button>
+        </Card>
+    );
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto animate-fade-in space-y-8">
@@ -269,6 +369,8 @@ const Step3Synchronicity: React.FC<Step3SynchronicityProps> = ({
           title={modalState.title}
           content={modalState.content}
           type={modalState.type}
+          isLoading={modalState.isLoading}
+          sources={modalState.sources}
         />
     </div>
   );

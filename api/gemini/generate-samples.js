@@ -13,37 +13,36 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { idea, brandName, identityElements } = req.body;
+    const { idea, brandName, identityElements, categoryType, item } = req.body;
 
-    if (!idea || !brandName || !identityElements) {
-      return res.status(400).json({ error: 'Idea, brand name, and identity elements are required' });
+    // Support both old and new parameter formats
+    const ideaText = idea || 'creative concept';
+    const brandNameText = brandName || 'Brand';
+    const categoryTypeText = categoryType || 'general';
+    const itemText = item || 'concept';
+
+    if (!ideaText || !brandNameText) {
+      return res.status(400).json({ error: 'Idea and brand name are required' });
     }
 
-    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-    
-    const prompt = `Generate specific samples and examples for this creative idea: "${idea}" for the brand "${brandName}" based on these identity elements: ${identityElements.join(', ')}.
+    console.log('Generating samples for:', { brandName: brandNameText, idea: ideaText, categoryType: categoryTypeText, item: itemText });
 
-    Provide concrete examples, mockups, or detailed descriptions of how this idea could be executed.`;
+    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+    const prompt = `Generate 3-5 specific, actionable samples for "${itemText}" in the context of "${categoryTypeText}" category for the creative idea: "${ideaText}" and brand "${brandNameText}".
+
+    Focus on concrete, practical examples that could be immediately implemented. Each sample should be:
+    - Specific and actionable
+    - Relevant to the ${categoryTypeText} context
+    - Aligned with the creative idea "${ideaText}"
+    - Suitable for the brand "${brandNameText}"
+
+    Return only the samples as a simple array of strings.`;
 
     const samplesSchema = {
-      type: Type.OBJECT,
-      properties: {
-        samples: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING },
-          description: "Specific examples and samples of the creative idea"
-        },
-        execution_details: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING },
-          description: "Detailed execution steps and considerations"
-        },
-        variations: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING },
-          description: "Different variations and approaches for the idea"
-        }
-      }
+      type: Type.ARRAY,
+      items: { type: Type.STRING },
+      description: "Array of specific, actionable samples"
     };
 
     const response = await ai.models.generateContent({
@@ -56,7 +55,12 @@ export default async function handler(req, res) {
     });
 
     const result = JSON.parse(response.text.trim());
-    res.json(result);
+
+    // Ensure we return an array
+    const samples = Array.isArray(result) ? result : (result.samples || []);
+
+    console.log('Generated samples:', samples);
+    res.json(samples);
 
   } catch (error) {
     console.error('Error generating samples:', error);

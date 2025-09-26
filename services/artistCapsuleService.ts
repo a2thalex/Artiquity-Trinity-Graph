@@ -82,7 +82,7 @@ export const generateCreativeImage = async (
     artistName: string,
     selectedStrategy: string,
     identityElements: string[],
-    userInput: string
+    inputs: Record<string, string>
 ): Promise<CreativeOutput> => {
     try {
         const response = await fetch(`${API_BASE}/creative-image`, {
@@ -94,7 +94,7 @@ export const generateCreativeImage = async (
                 artistName,
                 selectedStrategy,
                 identityElements,
-                userInput,
+                inputs,
             }),
         });
 
@@ -106,11 +106,8 @@ export const generateCreativeImage = async (
         const result = await response.json();
         
         return {
-            concept: result.concept,
-            imageUrl: '', // This would be populated by an image generation service
-            strategy: selectedStrategy,
-            elements: identityElements,
-            userInput: userInput
+            prompt: result.prompt ?? result.concept ?? '',
+            imageUrl: result.imageUrl ?? result.imageDataUrl ?? '',
         };
 
     } catch (error) {
@@ -137,11 +134,14 @@ export const generateSynchronicityDashboard = async (creativeOutput: CreativeOut
         }
 
         const result = await response.json();
-        
+
         return {
-            analysis: result.analysis,
-            insights: result.insights,
-            webSources: [] // This would be populated by a web search service
+            dashboard: result.dashboard || {
+                trendMatches: [],
+                audienceNodes: [],
+                formatSuggestions: []
+            },
+            sources: result.sources || []
         };
 
     } catch (error) {

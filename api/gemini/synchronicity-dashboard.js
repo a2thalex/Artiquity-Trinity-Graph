@@ -23,25 +23,61 @@ export default async function handler(req, res) {
     
     const prompt = `Analyze the synchronicity and cultural trends for this creative output: ${JSON.stringify(creativeOutput)}.
 
-    Provide insights on trend matching, audience analysis, and format suggestions.`;
+    Generate a comprehensive dashboard with:
+    1. Trend Matches: 3-5 current cultural trends that align with this creative work, each with a name, velocity (e.g., "Rising", "Peak", "Emerging"), and description
+    2. Audience Nodes: 3 categories of audiences - Subcultures, Influencers/Tastemakers, and Platforms - each with specific items/examples
+    3. Format Suggestions: 3-5 specific ideas for how to present or distribute this work, each with timing recommendations
+    4. Sources: Relevant web sources that support the analysis (can be simulated for now)
+
+    Focus on actionable insights that help launch this creative work into culture effectively.`;
 
     const synchronicitySchema = {
       type: Type.OBJECT,
       properties: {
-        analysis: {
+        dashboard: {
           type: Type.OBJECT,
           properties: {
-            trend_matches: { type: Type.ARRAY, items: { type: Type.STRING } },
-            audience_nodes: { type: Type.ARRAY, items: { type: Type.STRING } },
-            format_suggestions: { type: Type.ARRAY, items: { type: Type.STRING } }
+            trendMatches: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  velocity: { type: Type.STRING },
+                  description: { type: Type.STRING }
+                }
+              }
+            },
+            audienceNodes: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  category: { type: Type.STRING },
+                  items: { type: Type.ARRAY, items: { type: Type.STRING } }
+                }
+              }
+            },
+            formatSuggestions: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  idea: { type: Type.STRING },
+                  timing: { type: Type.STRING }
+                }
+              }
+            }
           }
         },
-        insights: {
-          type: Type.OBJECT,
-          properties: {
-            cultural_relevance: { type: Type.ARRAY, items: { type: Type.STRING } },
-            timing_considerations: { type: Type.ARRAY, items: { type: Type.STRING } },
-            market_opportunities: { type: Type.ARRAY, items: { type: Type.STRING } }
+        sources: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              uri: { type: Type.STRING },
+              title: { type: Type.STRING }
+            }
           }
         }
       }

@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Ensure consistent background color across all apps */
 .app-background {
   background-color: #E8F0FE !important;

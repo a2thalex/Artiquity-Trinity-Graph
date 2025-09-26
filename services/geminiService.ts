@@ -110,6 +110,7 @@ export const analyzeTrendsForIdea = async (brandName: string, idea: string): Pro
             body: JSON.stringify({
                 brandName,
                 idea,
+                creativeIdeas: [idea],
             }),
         });
 

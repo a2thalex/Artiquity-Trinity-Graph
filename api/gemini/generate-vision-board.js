@@ -7,65 +7,50 @@ export default async function handler(req, res) {
   }
 
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  
+
   if (!GEMINI_API_KEY) {
     return res.status(500).json({ error: 'Server configuration error: GEMINI_API_KEY is missing.' });
   }
 
   try {
-    const { brandName, selectedIdeas, identityElements } = req.body;
+    const { brandName, idea, selectedIdeas, identityElements } = req.body;
 
-    if (!brandName || !selectedIdeas || !identityElements) {
-      return res.status(400).json({ error: 'Brand name, selected ideas, and identity elements are required' });
+    // Support both old and new parameter formats
+    const ideaText = idea || (selectedIdeas ? selectedIdeas.join(', ') : '');
+    const brandNameText = brandName || 'Brand';
+
+    if (!brandNameText || !ideaText) {
+      return res.status(400).json({ error: 'Brand name and idea are required' });
     }
 
-    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-    
-    const prompt = `Create a vision board description for the brand "${brandName}" based on these selected ideas: ${selectedIdeas.join(', ')} and identity elements: ${identityElements.join(', ')}.
+    console.log('Generating vision board for:', { brandName: brandNameText, idea: ideaText });
 
-    Generate a comprehensive vision board that captures the brand's creative direction and visual identity.`;
+    // Create a detailed prompt for vision board image generation
+    const imagePrompt = `Create a professional vision board image for "${brandNameText}" based on the creative idea: "${ideaText}".
 
-    const visionBoardSchema = {
-      type: Type.OBJECT,
-      properties: {
-        vision_description: {
-          type: Type.STRING,
-          description: "Detailed description of the vision board concept"
-        },
-        visual_elements: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING },
-          description: "Key visual elements to include in the vision board"
-        },
-        color_palette: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING },
-          description: "Recommended color palette for the vision board"
-        },
-        mood_and_tone: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING },
-          description: "Mood and tone guidelines for the vision board"
-        },
-        layout_suggestions: {
-          type: Type.ARRAY,
-          items: { type: Type.STRING },
-          description: "Layout and composition suggestions"
-        }
-      }
-    };
+    The vision board should be a modern, artistic collage that visually represents the brand's creative direction and includes:
+    - Visual mood and aesthetic elements
+    - Color palette representation
+    - Typography and design elements
+    - Brand personality visualization
+    - Creative concept illustration
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: visionBoardSchema,
-      },
+    Style: Professional, modern, artistic vision board layout with clean composition, high-quality design elements, suitable for brand presentation and marketing use.`;
+
+    console.log('Using image prompt:', imagePrompt);
+
+    // Generate image using Pollinations AI (reliable and free)
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(imagePrompt)}?width=1024&height=1024&nologo=true&seed=${Date.now()}`;
+
+    console.log('Generated image URL:', imageUrl);
+
+    // Return the image data URL
+    res.json({
+      imageDataUrl: imageUrl,
+      prompt: imagePrompt,
+      success: true,
+      note: "Vision board generated successfully"
     });
-
-    const result = JSON.parse(response.text.trim());
-    res.json(result);
 
   } catch (error) {
     console.error('Error generating vision board:', error);

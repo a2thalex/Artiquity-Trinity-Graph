@@ -146,6 +146,30 @@ const Step3_Synchronicity: React.FC<Step3SynchronicityProps> = ({ brandName, res
         return <p>Loading trend analysis...</p>;
     }
 
+    const normalizedResults = (results ?? [])
+        .filter((result): result is SynchronicityResult => Boolean(result))
+        .map((result) => ({
+            ...result,
+            analysis: {
+                trend_brand_fit_mapping: result.analysis?.trend_brand_fit_mapping ?? [],
+                influencer_and_node_id: result.analysis?.influencer_and_node_id ?? [],
+                activation_concepts: result.analysis?.activation_concepts ?? [],
+                distribution_hooks_and_hacks: result.analysis?.distribution_hooks_and_hacks ?? [],
+            } as NonNullable<SynchronicityResult["analysis"]>,
+            sources: (result.sources ?? []).map((source) => ({
+                ...(source ?? {}),
+                web: source?.web ?? {},
+            })),
+        }));
+
+    if (normalizedResults.length === 0) {
+        return (
+            <div className="bg-white/40 backdrop-blur-md rounded-2xl p-6 text-center text-slate-600">
+                <p>No synchronicity insights were returned. Try generating creative ideas again and rerun the trend scan.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full max-w-7xl animate-fade-in">
             <StepHeader 
@@ -154,7 +178,7 @@ const Step3_Synchronicity: React.FC<Step3SynchronicityProps> = ({ brandName, res
             />
             
             <div className="space-y-12">
-                {results.map((result, idx) => (
+                {normalizedResults.map((result, idx) => (
                     <div key={idx} className="bg-white/30 backdrop-blur-lg p-6 md:p-8 rounded-2xl shadow-lg relative">
                         <div className="absolute top-4 right-4 bg-slate-500 text-white text-lg font-bold w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-20">
                             #{idx + 1}
