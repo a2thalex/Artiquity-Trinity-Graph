@@ -29,7 +29,7 @@ export default async function handler(req, res) {
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-pro",
       generationConfig: {
         temperature: 0.8,
         topK: 40,
@@ -47,13 +47,22 @@ export default async function handler(req, res) {
     console.log('Generating contextual campaign for:', brandName);
     console.log('Dashboard data:', JSON.stringify(synchronicityDashboard, null, 2));
 
-    // Generate all campaign components in parallel
-    const [adCopy, socialPlan, outreachTemplates, platformContent] = await Promise.all([
-      generateAdCopy(model, brandName, synchronicityDashboard, identityElements),
-      generateSocialPlan(model, brandName, synchronicityDashboard, identityElements),
-      generateOutreachTemplates(model, brandName, synchronicityDashboard, identityElements),
-      generatePlatformContent(model, brandName, synchronicityDashboard, identityElements)
-    ]);
+    // Generate campaign components sequentially to avoid memory issues
+    console.log('🎯 Starting ad copy generation...');
+    const adCopy = await generateAdCopy(model, brandName, synchronicityDashboard, identityElements);
+    console.log('✅ Ad copy generated successfully');
+
+    console.log('📱 Starting social plan generation...');
+    const socialPlan = await generateSocialPlan(model, brandName, synchronicityDashboard, identityElements);
+    console.log('✅ Social plan generated successfully');
+
+    console.log('🤝 Starting outreach templates generation...');
+    const outreachTemplates = await generateOutreachTemplates(model, brandName, synchronicityDashboard, identityElements);
+    console.log('✅ Outreach templates generated successfully');
+
+    console.log('🌐 Starting platform content generation...');
+    const platformContent = await generatePlatformContent(model, brandName, synchronicityDashboard, identityElements);
+    console.log('✅ Platform content generated successfully');
 
     const contextualCampaign = {
       success: true,
@@ -81,10 +90,37 @@ export default async function handler(req, res) {
     res.status(200).json(contextualCampaign);
 
   } catch (error) {
-    console.error('Contextual Campaign Generation Error:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate contextual campaign', 
-      details: error.message 
+    console.error('❌ Contextual Campaign Generation Error:', error);
+    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error name:', error.name);
+    console.error('❌ Error message:', error.message);
+
+    // Check if it's a specific Gemini API error
+    if (error.message && error.message.includes('quota')) {
+      return res.status(429).json({
+        error: 'API quota exceeded. Please try again later.',
+        details: error.message
+      });
+    }
+
+    if (error.message && error.message.includes('safety')) {
+      return res.status(400).json({
+        error: 'Content blocked by safety filters. Please try with different content.',
+        details: error.message
+      });
+    }
+
+    if (error.message && error.message.includes('timeout')) {
+      return res.status(408).json({
+        error: 'Request timeout. The campaign generation took too long.',
+        details: error.message
+      });
+    }
+
+    res.status(500).json({
+      error: 'Failed to generate contextual campaign',
+      details: error.message,
+      type: error.name || 'Unknown Error'
     });
   }
 }
