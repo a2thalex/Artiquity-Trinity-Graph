@@ -124,7 +124,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToSecurity, on
           {activeTab === 'branding' && (
             <div className="text-center">
               <div className="inline-flex items-center px-6 py-3 rounded-full text-lg mb-8" style={{ backgroundColor: 'rgba(107, 114, 128, 0.1)', border: '1px solid rgba(107, 114, 128, 0.2)', color: '#374151' }}>
-                📊 AI-Powered Brand Intelligence
+                AI-Powered Brand Intelligence
               </div>
               
               <h2 className="text-5xl md:text-6xl font-extrabold leading-tight mb-8 tracking-tight" style={{ color: '#000000' }}>
@@ -150,7 +150,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigateToSecurity, on
           {activeTab === 'data' && (
             <div className="text-center">
               <div className="inline-flex items-center px-6 py-3 rounded-full text-lg mb-8" style={{ backgroundColor: 'rgba(107, 114, 128, 0.1)', border: '1px solid rgba(107, 114, 128, 0.2)', color: '#374151' }}>
-                🎯 AI-Powered Data Marketplace
+                AI-Powered Data Marketplace
               </div>
               
               <h2 className="text-5xl md:text-6xl font-extrabold leading-tight mb-8 tracking-tight" style={{ color: '#000000' }}>

@@ -64,7 +64,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                                 index === 1 ? 'bg-silver-100 text-silver-800' :
                                                 'bg-bronze-100 text-bronze-800'
                                             }`}>
-                                                {index === 0 ? '🏆 #1' : index === 1 ? '🥈 #2' : '🥉 #3'}
+                                                {index === 0 ? '#1' : index === 1 ? '#2' : '#3'}
                                             </span>
                                             <span className="text-sm font-semibold text-purple-600">
                                                 Score: {result.score}/100
@@ -186,7 +186,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                             onClick={() => toggleSection('audience')}
                             className="w-full p-6 flex justify-between items-center hover:bg-gray-50 transition-colors"
                         >
-                            <h3 className="text-xl font-semibold">🎯 Target Audience</h3>
+                            <h3 className="text-xl font-semibold">Target Audience</h3>
                             <svg className={`w-6 h-6 transition-transform ${expandedSection === 'audience' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
@@ -227,7 +227,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                             onClick={() => toggleSection('platforms')}
                             className="w-full p-6 flex justify-between items-center hover:bg-gray-50 transition-colors"
                         >
-                            <h3 className="text-xl font-semibold">📱 Platforms & Distribution</h3>
+                            <h3 className="text-xl font-semibold">Platforms & Distribution</h3>
                             <svg className={`w-6 h-6 transition-transform ${expandedSection === 'platforms' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
@@ -239,12 +239,14 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                     <div className="flex flex-wrap gap-3">
                                         {(campaign.campaign.platforms || []).map((platform, i) => (
                                             <div key={i} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-                                                <span className="text-2xl">
-                                                    {platform.toLowerCase().includes('instagram') ? '📷' :
-                                                     platform.toLowerCase().includes('tiktok') ? '🎵' :
-                                                     platform.toLowerCase().includes('youtube') ? '📺' :
-                                                     platform.toLowerCase().includes('twitter') ? '🐦' :
-                                                     platform.toLowerCase().includes('linkedin') ? '💼' : '🌐'}
+                                                <span className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                                                    <span className="text-xs font-bold text-gray-600">
+                                                        {platform.toLowerCase().includes('instagram') ? 'IG' :
+                                                         platform.toLowerCase().includes('tiktok') ? 'TT' :
+                                                         platform.toLowerCase().includes('youtube') ? 'YT' :
+                                                         platform.toLowerCase().includes('twitter') ? 'TW' :
+                                                         platform.toLowerCase().includes('linkedin') ? 'LI' : 'WB'}
+                                                    </span>
                                                 </span>
                                                 <span className="font-medium">{platform}</span>
                                             </div>
@@ -256,7 +258,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                     <ul className="space-y-2">
                                         {(campaign.campaign.distribution_strategy || []).map((strategy, i) => (
                                             <li key={i} className="flex items-start gap-2">
-                                                <span className="text-green-500 mt-1">✓</span>
+                                                <span className="text-green-500 mt-1">•</span>
                                                 <span className="text-gray-600">{strategy}</span>
                                             </li>
                                         ))}
@@ -272,7 +274,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                             onClick={() => toggleSection('content')}
                             className="w-full p-6 flex justify-between items-center hover:bg-gray-50 transition-colors"
                         >
-                            <h3 className="text-xl font-semibold">💬 Key Messages & Content</h3>
+                            <h3 className="text-xl font-semibold">Key Messages & Content</h3>
                             <svg className={`w-6 h-6 transition-transform ${expandedSection === 'content' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
@@ -312,7 +314,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                             onClick={() => toggleSection('timeline')}
                             className="w-full p-6 flex justify-between items-center hover:bg-gray-50 transition-colors"
                         >
-                            <h3 className="text-xl font-semibold">📅 Timeline & Execution</h3>
+                            <h3 className="text-xl font-semibold">Timeline & Execution</h3>
                             <svg className={`w-6 h-6 transition-transform ${expandedSection === 'timeline' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
@@ -341,7 +343,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                                         <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
                                                             <p className="text-sm font-medium text-yellow-800 mb-1">Key Milestones:</p>
                                                             {(phase.milestones || []).map((milestone, i) => (
-                                                                <p key={i} className="text-sm text-yellow-700">🎯 {milestone}</p>
+                                                                <p key={i} className="text-sm text-yellow-700">• {milestone}</p>
                                                             ))}
                                                         </div>
                                                     )}
@@ -388,7 +390,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                             onClick={() => toggleSection('kpis')}
                             className="w-full p-6 flex justify-between items-center hover:bg-gray-50 transition-colors"
                         >
-                            <h3 className="text-xl font-semibold">📊 KPIs & Success Metrics</h3>
+                            <h3 className="text-xl font-semibold">KPIs & Success Metrics</h3>
                             <svg className={`w-6 h-6 transition-transform ${expandedSection === 'kpis' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>

@@ -118,9 +118,9 @@ const ArtiquityLanding: React.FC<ArtiquityLandingProps> = ({ onEnter }) => {
         {/* Feature Highlights with Animation */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
           {[
-            { icon: '🛡️', title: 'Content Protection', description: 'AI-Powered RSL Licensing' },
-            { icon: '🎨', title: 'Artist Development', description: 'Trinity Graph Intelligence' },
-            { icon: '📊', title: 'Brand Strategy', description: 'Cultural Trend Analysis' }
+            { title: 'Content Protection', description: 'AI-Powered RSL Licensing' },
+            { title: 'Artist Development', description: 'Trinity Graph Intelligence' },
+            { title: 'Brand Strategy', description: 'Cultural Trend Analysis' }
           ].map((feature, index) => (
             <div
               key={index}
@@ -131,7 +131,9 @@ const ArtiquityLanding: React.FC<ArtiquityLandingProps> = ({ onEnter }) => {
               }`}
               style={{ transitionDelay: `${index * 200}ms` }}
             >
-              <div className="text-4xl mb-3">{feature.icon}</div>
+              <div className="w-12 h-12 mx-auto mb-3 bg-gray-200 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 bg-gray-400 rounded"></div>
+              </div>
               <h3 className="text-lg font-semibold text-gray-800 mb-2">{feature.title}</h3>
               <p className="text-sm text-gray-600">{feature.description}</p>
             </div>
