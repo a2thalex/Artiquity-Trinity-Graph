@@ -77,7 +77,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                             <div className="mb-4">
                                                 <p className="text-sm font-medium text-gray-700 mb-1">Key Activation Concepts:</p>
                                                 <div className="flex flex-wrap gap-2">
-                                                    {result.analysis.activation_concepts.slice(0, 3).map((concept, i) => (
+                                                    {(result.analysis.activation_concepts || []).slice(0, 3).map((concept, i) => (
                                                         <span key={i} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
                                                             {concept}
                                                         </span>
@@ -142,7 +142,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                 {campaignResults.length > 1 && (
                     <div className="bg-white/90 rounded-xl p-4 shadow-lg">
                         <div className="flex justify-center gap-2">
-                            {campaignResults.map((result, index) => (
+                            {(campaignResults || []).map((result, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setSelectedCampaign(result)}
@@ -173,7 +173,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                     <div className="bg-white/90 rounded-xl p-6 shadow-lg">
                         <h3 className="font-semibold text-gray-700 mb-2">Duration</h3>
                         <p className="text-2xl font-bold text-blue-600">
-                            {campaign.campaign.activation_timeline.length * 30} Days
+                            {(campaign.campaign.activation_timeline || []).length * 30} Days
                         </p>
                     </div>
                 </div>
@@ -200,7 +200,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                 <div>
                                     <h4 className="font-medium text-gray-700 mb-2">Demographics</h4>
                                     <div className="flex flex-wrap gap-2">
-                                        {campaign.campaign.target_audience.demographics.map((demo, i) => (
+                                        {(campaign.campaign.target_audience.demographics || []).map((demo, i) => (
                                             <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm">
                                                 {demo}
                                             </span>
@@ -210,7 +210,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                 <div>
                                     <h4 className="font-medium text-gray-700 mb-2">Psychographics</h4>
                                     <div className="flex flex-wrap gap-2">
-                                        {campaign.campaign.target_audience.psychographics.map((psycho, i) => (
+                                        {(campaign.campaign.target_audience.psychographics || []).map((psycho, i) => (
                                             <span key={i} className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm">
                                                 {psycho}
                                             </span>
@@ -237,7 +237,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                 <div>
                                     <h4 className="font-medium text-gray-700 mb-2">Primary Platforms</h4>
                                     <div className="flex flex-wrap gap-3">
-                                        {campaign.campaign.platforms.map((platform, i) => (
+                                        {(campaign.campaign.platforms || []).map((platform, i) => (
                                             <div key={i} className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
                                                 <span className="text-2xl">
                                                     {platform.toLowerCase().includes('instagram') ? '📷' :
@@ -254,7 +254,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                 <div>
                                     <h4 className="font-medium text-gray-700 mb-2">Distribution Strategy</h4>
                                     <ul className="space-y-2">
-                                        {campaign.campaign.distribution_strategy.map((strategy, i) => (
+                                        {(campaign.campaign.distribution_strategy || []).map((strategy, i) => (
                                             <li key={i} className="flex items-start gap-2">
                                                 <span className="text-green-500 mt-1">✓</span>
                                                 <span className="text-gray-600">{strategy}</span>
@@ -282,7 +282,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                 <div>
                                     <h4 className="font-medium text-gray-700 mb-2">Core Messages</h4>
                                     <ol className="space-y-2">
-                                        {campaign.campaign.key_messages.map((message, i) => (
+                                        {(campaign.campaign.key_messages || []).map((message, i) => (
                                             <li key={i} className="flex items-start gap-3">
                                                 <span className="flex-shrink-0 w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-sm font-medium">
                                                     {i + 1}
@@ -295,7 +295,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                 <div>
                                     <h4 className="font-medium text-gray-700 mb-2">Content Pillars</h4>
                                     <div className="grid md:grid-cols-2 gap-3">
-                                        {campaign.campaign.content_pillars.map((pillar, i) => (
+                                        {(campaign.campaign.content_pillars || []).map((pillar, i) => (
                                             <div key={i} className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
                                                 <span className="text-gray-700">{pillar}</span>
                                             </div>
@@ -320,7 +320,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                         {expandedSection === 'timeline' && (
                             <div className="px-6 pb-6">
                                 <div className="space-y-6">
-                                    {campaign.campaign.activation_timeline.map((phase, index) => (
+                                    {(campaign.campaign.activation_timeline || []).map((phase, index) => (
                                         <div key={index} className="relative">
                                             <div className="flex items-start gap-4">
                                                 <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-full flex items-center justify-center font-bold">
@@ -330,7 +330,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                                     <h4 className="font-semibold text-lg mb-1">{phase.phase}</h4>
                                                     <p className="text-sm text-gray-500 mb-3">{phase.duration}</p>
                                                     <div className="space-y-2">
-                                                        {phase.activities.map((activity, i) => (
+                                                        {(phase.activities || []).map((activity, i) => (
                                                             <div key={i} className="flex items-start gap-2">
                                                                 <span className="text-green-500 mt-1">•</span>
                                                                 <span className="text-gray-600">{activity}</span>
@@ -340,14 +340,14 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                                     {phase.milestones && phase.milestones.length > 0 && (
                                                         <div className="mt-3 p-3 bg-yellow-50 rounded-lg">
                                                             <p className="text-sm font-medium text-yellow-800 mb-1">Key Milestones:</p>
-                                                            {phase.milestones.map((milestone, i) => (
+                                                            {(phase.milestones || []).map((milestone, i) => (
                                                                 <p key={i} className="text-sm text-yellow-700">🎯 {milestone}</p>
                                                             ))}
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
-                                            {index < campaign.campaign.activation_timeline.length - 1 && (
+                                            {index < (campaign.campaign.activation_timeline || []).length - 1 && (
                                                 <div className="absolute left-5 top-12 bottom-0 w-0.5 bg-gradient-to-b from-purple-200 to-transparent"></div>
                                             )}
                                         </div>
@@ -362,7 +362,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                             <div>
                                                 <p className="text-sm font-medium text-gray-700 mb-1">Week 1 - Launch</p>
                                                 <ul className="text-sm text-gray-600 space-y-1">
-                                                    {campaign.executionPlan.week1.map((task, i) => (
+                                                    {(campaign.executionPlan?.week1 || []).map((task, i) => (
                                                         <li key={i}>• {task}</li>
                                                     ))}
                                                 </ul>
@@ -370,7 +370,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                             <div>
                                                 <p className="text-sm font-medium text-gray-700 mb-1">Weeks 2-4 - Build Momentum</p>
                                                 <ul className="text-sm text-gray-600 space-y-1">
-                                                    {campaign.executionPlan.week2_4.map((task, i) => (
+                                                    {(campaign.executionPlan?.week2_4 || []).map((task, i) => (
                                                         <li key={i}>• {task}</li>
                                                     ))}
                                                 </ul>
@@ -396,7 +396,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                         {expandedSection === 'kpis' && (
                             <div className="px-6 pb-6">
                                 <div className="grid md:grid-cols-2 gap-4">
-                                    {campaign.campaign.kpis.map((kpi, i) => (
+                                    {(campaign.campaign.kpis || []).map((kpi, i) => (
                                         <div key={i} className="p-4 bg-gray-50 rounded-lg">
                                             <h5 className="font-medium text-gray-800 mb-1">{kpi.metric}</h5>
                                             <p className="text-2xl font-bold text-purple-600 mb-1">{kpi.target}</p>
@@ -408,7 +408,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                     <div className="mt-4 p-4 bg-green-50 rounded-lg">
                                         <p className="text-sm font-medium text-green-800 mb-2">Additional Success Indicators:</p>
                                         <div className="flex flex-wrap gap-2">
-                                            {campaign.campaign.success_metrics.map((metric, i) => (
+                                            {(campaign.campaign.success_metrics || []).map((metric, i) => (
                                                 <span key={i} className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
                                                     {metric}
                                                 </span>
@@ -495,7 +495,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                     <div className="bg-gray-50 p-4 rounded-lg">
                                         <p className="font-semibold mb-2">Campaign Links:</p>
                                         <div className="space-y-2">
-                                            {deploymentData.urls && Object.entries(deploymentData.urls).map(([key, url]: [string, any]) => (
+                                            {deploymentData.urls && Object.entries(deploymentData.urls || {}).map(([key, url]: [string, any]) => (
                                                 <a 
                                                     key={key}
                                                     href={url} 
@@ -536,7 +536,7 @@ const Step4_Campaign: React.FC<Step4_CampaignProps> = ({
                                         <div className="bg-yellow-50 p-4 rounded-lg">
                                             <p className="font-semibold mb-2">Next Steps:</p>
                                             <ol className="space-y-1">
-                                                {deploymentData.nextSteps.map((step: string, i: number) => (
+                                                {(deploymentData.nextSteps || []).map((step: string, i: number) => (
                                                     <li key={i} className="flex items-start gap-2">
                                                         <span className="text-yellow-600 font-bold">{i + 1}.</span>
                                                         <span className="text-gray-700">{step}</span>

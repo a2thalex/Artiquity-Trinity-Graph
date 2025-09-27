@@ -120,8 +120,9 @@ function calculateEstimatedReach(campaign) {
   let baseReach = budgetMultipliers[campaign.budget_tier] || 10000;
   
   // Apply platform multipliers
-  campaign.platforms.forEach(platform => {
-    const multiplier = Object.entries(platformMultipliers).find(([key]) => 
+  const platforms = campaign.platforms || [];
+  platforms.forEach(platform => {
+    const multiplier = Object.entries(platformMultipliers).find(([key]) =>
       platform.toLowerCase().includes(key.toLowerCase())
     )?.[1] || 1;
     baseReach *= multiplier;
