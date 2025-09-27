@@ -1,7 +1,7 @@
 // api/gemini/generate-campaign.js
 // Campaign generation endpoint for Artiquity Trinity Graph
 
-import { GoogleGenerativeAI, HarmBlockThreshold, HarmCategory } from '@google/generative-ai';
+import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -27,23 +27,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      generationConfig: {
-        temperature: 0.8,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 8192,
-      },
-      safetySettings: [
-        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
-      ],
-    });
+    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
     // Extract data safely from synchronicity result
     const idea = synchronicityResult.idea || 'Creative concept';
@@ -63,16 +47,14 @@ CREATIVE IDEA: ${idea}
 SCORE: ${score}/100
 BRAND ELEMENTS: ${identityElements.slice(0, 3).join(', ')}
 
-Generate a focused campaign strategy with:
-
-Return JSON:
+Return JSON only:
 {
   "campaign": {
     "id": "campaign_${Date.now()}",
     "creative_idea": "${idea}",
-    "campaign_name": "memorable name",
+    "campaign_name": "memorable campaign name",
     "campaign_tagline": "powerful tagline",
-    "campaign_type": "hybrid",
+    "campaign_type": "digital",
     "platforms": ["Instagram", "TikTok", "Website"],
     "target_audience": {
       "primary": "main audience description",
@@ -84,134 +66,40 @@ Return JSON:
       "core message 2",
       "core message 3"
     ],
-    "timeline": [
-      {
-        "phase": "Launch",
-        "duration": "Weeks 1-2",
-        "activities": ["activity 1", "activity 2"]
-      },
-      {
-        "phase": "Amplify",
-        "duration": "Weeks 3-6",
-        "activities": ["engagement 1", "engagement 2"]
-      },
-      {
-        "phase": "Convert",
-        "duration": "Weeks 7-12",
-        "activities": ["conversion 1", "sustain"]
-      }
-    ],
     "budget_tier": "medium",
-    "budget_range": "$80,000 - $180,000",
+    "budget_range": "$50K-250K",
     "duration": "90 Days",
-    "kpis": [
-      {
-        "metric": "Reach",
-        "target": "500K impressions"
-      },
-      {
-        "metric": "Engagement",
-        "target": "5% rate"
-      },
-      {
-        "metric": "Conversions",
-        "target": "2,500 actions"
-      }
-      {
-        "metric": "Brand Sentiment",
-        "target": "percentage positive",
-        "measurement": "monitoring approach"
-      }
-    ],
-    "distribution_strategy": [
-      "owned media tactic with specifics",
-      "earned media approach with targets",
-      "paid media strategy with budget allocation",
-      "shared media collaboration plan"
-    ],
-    "content_pillars": [
-      "Content Pillar 1: Theme/Topic",
-      "Content Pillar 2: Theme/Topic",
-      "Content Pillar 3: Theme/Topic",
-      "Content Pillar 4: Theme/Topic"
-    ],
-    "creative_assets_needed": [
-      "hero video/content piece",
-      "social media templates",
-      "influencer toolkit",
-      "landing page/microsite",
-      "email sequences"
-    ],
-    "partnership_opportunities": [
-      "potential brand partner with synergy",
-      "influencer tier and examples",
-      "media partnership possibility",
-      "technology/platform partnership"
-    ],
-    "success_metrics": [
-      "quantitative success indicator 1",
-      "quantitative success indicator 2",
-      "qualitative success indicator 1",
-      "qualitative success indicator 2"
-    ],
-    "risk_mitigation": [
-      "potential risk 1 and mitigation strategy",
-      "potential risk 2 and mitigation strategy",
-      "potential risk 3 and mitigation strategy"
-    ],
-    "amplification_tactics": [
-      "viral mechanism or hook",
-      "user-generated content strategy",
-      "PR angle or newsworthy element",
-      "community activation approach"
-    ]
+    "success_metrics": ["Engagement rate", "Brand awareness", "Conversions"],
+    "content_pillars": ["Brand story", "User engagement", "Cultural relevance"]
   },
   "executionPlan": {
-    "week1": [
-      "Day 1-2: Specific task",
-      "Day 3-4: Specific task",
-      "Day 5-7: Specific task"
-    ],
-    "week2_4": [
-      "Week 2: Key focus and tasks",
-      "Week 3: Key focus and tasks",
-      "Week 4: Key focus and tasks"
-    ],
-    "month2": [
-      "Week 5-6: Activities",
-      "Week 7-8: Activities"
-    ],
-    "month3": [
-      "Week 9-10: Activities",
-      "Week 11-12: Activities and wrap-up"
-    ],
-    "ongoing": [
-      "Daily monitoring task",
-      "Weekly reporting task",
-      "Continuous optimization task"
-    ]
+    "week1": ["Campaign setup", "Content creation", "Platform preparation"],
+    "week2_4": ["Content publishing", "Community engagement", "Performance monitoring"],
+    "month2": ["Optimization", "Scaling", "Partnership development"],
+    "month3": ["Analysis", "Reporting", "Next phase planning"],
+    "ongoing": ["Community management", "Content updates", "Performance tracking"]
   }
 }
 
-Make the campaign innovative, culturally relevant, and highly executable. Base budget tiers on:
-- Micro: <$10K
-- Small: $10K-50K  
-- Medium: $50K-250K
-- Large: $250K-1M
-- Enterprise: >$1M`;
+Make it innovative, culturally relevant, and executable.`;
 
     console.log('Generating campaign with prompt length:', campaignPrompt.length);
 
     // Add timeout to prevent Heroku timeout
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Request timeout')), 25000) // 25 seconds
+      setTimeout(() => reject(new Error('Request timeout')), 35000) // 35 seconds
     );
 
-    const generatePromise = model.generateContent(campaignPrompt);
+    const generatePromise = ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: campaignPrompt,
+      config: {
+        responseMimeType: "application/json",
+      },
+    });
 
     const result = await Promise.race([generatePromise, timeoutPromise]);
-    const response = await result.response;
-    const text = response.text();
+    const text = result.text.trim();
 
     console.log('Raw campaign response:', text.substring(0, 500) + '...');
 
