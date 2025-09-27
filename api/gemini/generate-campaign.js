@@ -45,7 +45,7 @@ Create a campaign strategy for ${brandName}.
 
 CREATIVE IDEA: ${idea}
 SCORE: ${score}/100
-BRAND ELEMENTS: ${identityElements.slice(0, 3).join(', ')}
+BRAND ELEMENTS: ${(identityElements || []).slice(0, 3).join(', ')}
 
 Return JSON only:
 {

@@ -304,6 +304,11 @@ export const generateCampaignVariations = async (
     count: number = 3
 ): Promise<CampaignGenerationResult[]> => {
     try {
+        // Ensure we have valid synchronicity results
+        if (!synchronicityResults || synchronicityResults.length === 0) {
+            throw new Error("No synchronicity results provided for campaign generation");
+        }
+
         // Take top N results based on count
         const topResults = synchronicityResults.slice(0, Math.min(count, 3));
         

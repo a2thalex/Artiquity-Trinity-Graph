@@ -152,7 +152,7 @@ const TrinityGraph: React.FC<TrinityGraphProps> = ({ onBack }) => {
             );
             
             setCampaignResults(campaigns);
-            setSelectedCampaign(campaigns[0]);
+            setSelectedCampaign(campaigns.length > 0 ? campaigns[0] : null);
             setStep(AppStep.CAMPAIGN_RESULT);
         } catch (e) {
             console.error(e);
