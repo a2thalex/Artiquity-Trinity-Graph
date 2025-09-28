@@ -1,7 +1,13 @@
 // api/gemini/artist-identity-capsule.js
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from "@google/genai";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envLocalPath = path.join(__dirname, "..", "..", ".env.local");
+dotenv.config({ path: envLocalPath });
 dotenv.config();
 
 export default async function handler(req, res) {
