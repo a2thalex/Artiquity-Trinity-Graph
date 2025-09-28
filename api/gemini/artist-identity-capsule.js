@@ -1,5 +1,8 @@
 // api/gemini/artist-identity-capsule.js
+import dotenv from 'dotenv';
 import { GoogleGenAI, Type } from "@google/genai";
+
+dotenv.config();
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
