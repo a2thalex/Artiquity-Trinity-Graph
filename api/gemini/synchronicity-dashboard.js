@@ -1,9 +1,15 @@
 // api/gemini/synchronicity-dashboard.js
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Load environment variables
-dotenv.config({ path: '.env.local' });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load environment variables from the correct path
+const envLocalPath = path.join(__dirname, "..", "..", ".env.local");
+dotenv.config({ path: envLocalPath });
 dotenv.config();
 
 // Helper function to extract key themes from creative output
